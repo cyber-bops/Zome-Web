@@ -14,3 +14,4 @@ export const CodeIcon = () => <svg {...s}><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14
 export const ChevIcon = () => <svg {...s}><path d="M7 10l5 5 5-5" /></svg>
 export const CheckIcon = () => <svg {...s} strokeWidth={3}><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
 export const BackIcon = () => <svg {...s}><path d="M15 6l-6 6 6 6" /></svg>
+export const ListIcon = () => <svg {...s}><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" /></svg>

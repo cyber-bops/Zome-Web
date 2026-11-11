@@ -6,8 +6,9 @@ import { useEffect } from 'react'
 // with a head (title, one line, a close cross), a body, and a foot of two
 // buttons. Centred on a wide screen; on a phone it sits at the bottom.
 // Escape or a click outside closes it.
-export function Sheet({ title, lede, onClose, foot, children, narrow }: {
+export function Sheet({ title, lede, onClose, foot, children, narrow, icon }: {
   title: string
+  icon?: React.ReactNode
   lede?: string
   onClose: () => void
   foot?: React.ReactNode
@@ -23,7 +24,8 @@ export function Sheet({ title, lede, onClose, foot, children, narrow }: {
   return (
     <div className="modal-backdrop" role="presentation" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
       <div className={`modal${narrow ? ' narrow' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
-        <div className="modal-head">
+        <div className={`modal-head${icon ? ' with-icon' : ''}`}>
+          {icon && <span className="modal-icon" aria-hidden="true">{icon}</span>}
           <h2>{title}</h2>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>

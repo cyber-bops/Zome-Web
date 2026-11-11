@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { HomeIcon, PlusIcon, UserIcon } from '../icons'
+import { HomeIcon, ListIcon, PlusIcon, UserIcon } from '../icons'
 import { ZomeMark } from '../mark'
 
 // Health (the path and alerts) joins these once it is on the web (ADR-0053 §5).
 const pages = [
-  { href: '/', label: 'Care Purse', icon: HomeIcon },
+  { href: '/', label: 'Home', icon: HomeIcon },
+  { href: '/activity', label: 'Activity', icon: ListIcon },
   { href: '/profile', label: 'Profile', icon: UserIcon },
 ]
 
@@ -32,15 +33,18 @@ export function TopBar({ initial }: { initial: string }) {
   )
 }
 
-/** The phone's floating bar: the pages on the left, Fund on the right. */
+/** The phone's tab bar: Home and Activity, Add money in the middle, Profile. */
 export function BottomBar() {
   const path = usePathname()
+  const tab = (p: (typeof pages)[number]) => {
+    const Icon = p.icon
+    return <Link key={p.href} href={p.href} className="tb" aria-current={isOn(path, p.href) ? 'page' : undefined}><Icon />{p.label}</Link>
+  }
   return (
-    <nav className="bar" aria-label="Main">
-      {pages.map(({ href, label, icon: Icon }) => (
-        <Link key={href} href={href} className="rb" aria-label={label} aria-current={isOn(path, href) ? 'page' : undefined}><Icon /></Link>
-      ))}
-      <Link href="/?fund=1" className="rb plus" aria-label="Add money" scroll={false}><PlusIcon /></Link>
+    <nav className="tabbar" aria-label="Main">
+      {pages.slice(0, 2).map(tab)}
+      <Link href="/?fund=1" className="fab" aria-label="Add money" scroll={false}><PlusIcon /></Link>
+      {pages.slice(2).map(tab)}
     </nav>
   )
 }

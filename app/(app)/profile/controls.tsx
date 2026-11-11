@@ -52,9 +52,9 @@ export function AccountActions() {
 
   return (
     <>
-      <div className="row"><div><b>Sign out</b><span className="s">On this browser only.</span></div>
+      <div className="row"><b>Sign out</b>
         <button type="button" className="btn soft" disabled={!!busy} onClick={() => out(false)}>{busy === 'one' ? 'Signing out…' : 'Sign out'}</button></div>
-      <div className="row"><div><b>Sign out everywhere</b><span className="s">Ends every session, on your phone too.</span></div>
+      <div className="row"><b>Sign out everywhere</b>
         <button type="button" className="btn danger" disabled={!!busy} onClick={() => out(true)}>{busy === 'all' ? 'Signing out…' : 'Sign out everywhere'}</button></div>
       {problem && <p className="problem gap" role="alert">{problem}</p>}
     </>

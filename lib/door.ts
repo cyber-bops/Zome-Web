@@ -16,6 +16,13 @@ const allowed: Array<[string, RegExp]> = [
   ['POST', new RegExp(`^vault/merchants/${id}/pay$`)],
   ['GET', /^vault\/bills$/],
   ['POST', new RegExp(`^vault/bills/${id}/(approve|decline)$`)],
+  // Paying a bank account outside the network (ADR-0036).
+  ['GET', /^vault\/transfers\/setup$/],
+  ['GET', /^vault\/transfer-banks$/],
+  ['POST', /^vault\/transfer-lookup$/],
+  ['POST', /^vault\/transfers$/],
+  ['GET', /^vault\/transfers$/],
+  ['GET', new RegExp(`^vault/transfers/${id}$`)],
 ]
 
 export function isAllowed(method: string, path: string): boolean {
@@ -29,7 +36,7 @@ export const signsIn = (path: string) => path === 'auth/verify' || path === 'aut
 export const sessionless = (path: string) => path === 'auth/start' || signsIn(path)
 
 /** Anything that moves money carries an Idempotency-Key, so a retry never pays twice. */
-const keyed = (path: string) => path === 'vault/top-ups' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
+const keyed = (path: string) => path === 'vault/top-ups' || path === 'vault/transfers' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
 
 /** The one header passed on from the browser: the Idempotency-Key of a payment. */
 export function passedHeaders(path: string, given: Headers): Record<string, string> {

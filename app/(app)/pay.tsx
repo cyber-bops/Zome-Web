@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
 import { PinSheet } from './pin'
+import { TransferFlow } from './transfer'
 import { Sheet } from './sheet'
 
 // Paying a business on Zome from the Care Purse (ADR-0036): find the
@@ -18,7 +19,7 @@ const initials = (n: string) => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('
 
 export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClose: () => void; onPaid: (t: string) => void }) {
   const router = useRouter()
-  const [step, setStep] = useState<'find' | 'amount' | 'choose' | 'again' | 'pin' | 'paid'>('find')
+  const [step, setStep] = useState<'find' | 'amount' | 'choose' | 'again' | 'pin' | 'paid' | 'bank'>('find')
   const [q, setQ] = useState('')
   const [list, setList] = useState<Merchant[] | null>([])
   const [to, setTo] = useState<Merchant | null>(null)
@@ -68,6 +69,7 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
     }
   }, [to, amount, note, router, onPaid])
 
+  if (step === 'bank') return <TransferFlow balance={balance} onClose={onClose} onPaid={onPaid} onBack={() => setStep('find')} />
   if (step === 'choose') return (
     <PinSheet eyebrow="Payment PIN" title="Choose a PIN" lede={problem ?? 'Nothing leaves without your 4-digit PIN.'} onClose={onClose}
       onPin={async p => { setProblem(null); setFirst(p); setStep('again'); return null }} />
@@ -112,7 +114,8 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
     </Sheet>
   )
   return (
-    <Sheet eyebrow="Pay a bill" title="Find the provider" onClose={onClose}>
+    <Sheet eyebrow="Pay a bill" title="Find the provider" onClose={onClose}
+      foot={<button type="button" className="btn soft span" onClick={() => setStep('bank')}>Outside the network: pay a bank account</button>}>
       <label className="search"><span className="lbl">Find</span>
         <input id="pay-find" value={q} onChange={e => { setProblem(null); setQ(e.target.value) }} placeholder="Clinic, pharmacy or lab" autoFocus autoComplete="off" /></label>
       <div className="pick">

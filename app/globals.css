@@ -315,3 +315,6 @@ h1, h2, h3, p { margin: 0; }
 .bill-card b { font-size: 18px; font-weight: 500; } .bill-card .d { font-size: 14px; color: var(--ink-2); }
 .bill-card .lbl { color: var(--blue); }
 .bill-card .go-word { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: var(--blue); color: #fff; font-weight: 500; padding: 10px 16px; border-radius: 10px; }
+.chosen { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--key); box-shadow: 0 0 0 1px var(--rule) inset; font-weight: 500; }
+.found { color: var(--green); font-weight: 600; font-size: 15px; }
+.kv.top-gap { margin-top: 18px; }

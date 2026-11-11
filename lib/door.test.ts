@@ -44,3 +44,11 @@ test('only the search words reach the directory', () => {
   assert.equal(passedQuery('vault/merchants', new URLSearchParams()), '')
   assert.equal(passedQuery('vault', new URLSearchParams({ q: 'x' })), '')
 })
+
+test('a transfer to a bank is keyed, its lookup is not', () => {
+  const h = new Headers({ 'Idempotency-Key': 'web-7' })
+  assert.deepEqual(passedHeaders('vault/transfers', h), { 'Idempotency-Key': 'web-7' })
+  assert.deepEqual(passedHeaders('vault/transfer-lookup', h), {})
+  assert.equal(isAllowed('GET', 'vault/transfers/0b6f1e2a-1111-4222-8333-944455556666'), true)
+  assert.equal(isAllowed('DELETE', 'vault/transfers'), false)
+})

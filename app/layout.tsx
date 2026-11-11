@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next'
-import { cookies } from 'next/headers'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -11,24 +10,18 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#EFF1F4' },
-    { media: '(prefers-color-scheme: dark)', color: '#00101F' },
-  ],
-}
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#E9E5DD' }
 
-// The look (light, dark or the system's) is a plain cookie the Profile page
-// sets, read here so the first paint is already right, with no script.
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const look = (await cookies()).get('zome_look')?.value
-  const theme = look === 'light' || look === 'dark' ? look : undefined
+// One look, paper on a desk (globals.css). The filter gives the stamps their ink.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-NG" data-theme={theme}>
-      <body>{children}</body>
+    <html lang="en-NG">
+      <body>
+        <svg width="0" height="0" className="sr" aria-hidden="true">
+          <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" result="t" /><feDisplacementMap in="SourceGraphic" in2="t" scale="2.2" /></filter>
+        </svg>
+        {children}
+      </body>
     </html>
   )
 }

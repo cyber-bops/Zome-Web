@@ -7,6 +7,7 @@ const allowed: Array<[string, RegExp]> = [
   ['PUT', /^me\/profile$/],
   ['GET', /^vault$/],
   ['POST', /^vault\/top-ups$/],
+  ['POST', /^vault\/pay-codes$/],
 ]
 
 export function isAllowed(method: string, path: string): boolean {

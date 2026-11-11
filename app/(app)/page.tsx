@@ -1,5 +1,5 @@
 import { checklist, me, purse } from '@/server/api'
-import { Wallet } from './wallet'
+import { PurseView } from './purse'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Care Purse · Zome' }
@@ -9,10 +9,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ f
   const name = who?.full_name?.trim() || who?.nickname?.trim() || ''
   const first = who?.nickname?.trim() || who?.full_name?.trim().split(/\s+/)[0] || ''
   if (!p) return (
-    <section className="tile notice">
-      <div className="grow"><b>Care Purse isn’t open to you yet</b>
-        <span>We’re opening Care Purse to people in stages. We’ll email you when yours is ready.</span></div>
-    </section>
+    <div className="card">
+      <h2>Care Purse isn’t open to you yet</h2>
+      <p className="mut note">We’re opening Care Purse to people in stages. We’ll email you when yours is ready.</p>
+    </div>
   )
-  return <Wallet purse={p} name={name} first={first} openFund={q.fund === '1'} checklist={list} />
+  return <PurseView purse={p} name={name} first={first} openFund={q.fund === '1'} checklist={list} />
 }

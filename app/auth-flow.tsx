@@ -143,12 +143,19 @@ export function AuthFlow({ mode }: { mode: Mode }) {
 
   return (
     <main className="auth">
-      <aside className="auth-side">
-        <span className="pill">Care Purse</span>
-        <div>
-          <h2>Ready when <span className="tone">care is.</span></h2>
-          <p>Save for care, let family add to it, and pay any clinic, pharmacy or lab in Nigeria.</p>
-        </div>
+      <aside className="auth-side" aria-hidden="true">
+        <div className="tape"><div className="paper">
+          <div className="ph"><ZomeMark /><b>ZOME CARE PURSE</b><span>READY WHEN CARE IS</span></div>
+          <div className="dash" />
+          <div className="tot">
+            <span className="k">SAVE FOR CARE</span><span>8% A YEAR</span>
+            <span className="k">FAMILY CAN ADD</span><span>BY TRANSFER</span>
+            <span className="k">PAY ANY CLINIC</span><span>IN NIGERIA</span>
+          </div>
+          <div className="dash" />
+          <div className="bars" />
+          <p className="pf">KEPT FOR CARE</p>
+        </div></div>
       </aside>
       <section className="auth-main">
         <div className="auth-form">

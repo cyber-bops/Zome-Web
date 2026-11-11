@@ -1,0 +1,32 @@
+# Zome on the web, on Fly beside the API in Frankfurt (ADR-0053).
+# Nothing here is secret: the app holds no keys of its own. It signs in to
+# the API with each person's session, kept in their browser's cookie.
+
+app = "zome-web"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  ZOME_API_URL = "https://api.myzome.app"
+  # This site's own address; changes sent from anywhere else are refused.
+  ZOME_WEB_ORIGIN = "https://app.myzome.app"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/sign-in"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

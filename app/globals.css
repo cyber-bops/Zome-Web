@@ -325,3 +325,4 @@ body.locked { overflow: hidden; }
 }
 .pcard .hd .avatar { color: #0B0B0C; font-size: 22px; }
 @media (min-width: 900px) { .me-card { min-height: 0; } }
+.pgrid { align-items: start; }

@@ -9,6 +9,11 @@ const allowed: Array<[string, RegExp]> = [
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
   ['POST', /^me\/bvn$/],
   ['POST', /^me\/bvn\/confirm$/],
+  ['POST', /^me\/nin$/],
+  ['POST', /^me\/selfie$/],
+  ['POST', /^me\/phone\/(code|confirm)$/],
+  ['GET', /^me\/next-of-kin$/],
+  ['PUT', /^me\/next-of-kin$/],
   ['GET', /^vault$/],
   ['POST', /^vault\/top-ups$/],
   ['POST', /^vault\/pay-codes$/],
@@ -52,4 +57,9 @@ export function passedQuery(path: string, given: URLSearchParams): string {
   if (path !== 'vault/merchants') return ''
   const q = given.get('q')?.trim().slice(0, 80)
   return q ? `?${new URLSearchParams({ q })}` : ''
+}
+
+/** How much a request may carry: a selfie is a photo, everything else is small. */
+export function bodyLimit(path: string): number {
+  return path === 'me/selfie' ? 5 * 1024 * 1024 : 16_384
 }

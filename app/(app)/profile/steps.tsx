@@ -4,12 +4,12 @@ import { useState } from 'react'
 import { stepWord } from '@/lib/words'
 import type { Checklist } from '@/server/api'
 import { CheckIcon } from '../../icons'
-import { BvnSheet } from '../bvn'
+import { onTheWeb, SetupSheet } from '../setup'
 
-// The set-up checklist. The BVN is added here on the web; the other steps
-// are in the app for now.
+// The set-up checklist. Linking a bank account is in the app for now; the
+// other steps are done here.
 export function Steps({ list }: { list: Checklist }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const steps = list.steps.filter(s => s.state !== 'unavailable')
   return (
@@ -20,12 +20,12 @@ export function Steps({ list }: { list: Checklist }) {
           <i aria-hidden="true">{s.state === 'done' ? <CheckIcon /> : null}</i>
           <span>{stepWord[s.id] ?? s.id}</span>
           {s.state === 'waiting' && <span className="lbl">Checking</span>}
-          {s.state === 'to_do' && (s.id === 'bvn'
-            ? <button type="button" className="btn small-btn" onClick={() => setOpen(true)}>Add</button>
+          {s.state === 'to_do' && (onTheWeb.has(s.id)
+            ? <button type="button" className="btn small-btn" onClick={() => setOpen(s.id)}>Add</button>
             : <span className="lbl">In the app</span>)}
         </div>
       ))}
-      {open && <BvnSheet onClose={() => setOpen(false)} onDone={t => { setToast(t); setTimeout(() => setToast(null), 2600) }} />}
+      {open && <SetupSheet step={open} onClose={() => setOpen(null)} onDone={t => { setToast(t); setTimeout(() => setToast(null), 2600) }} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </section>
   )

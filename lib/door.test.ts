@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { isAllowed, passedHeaders, passedQuery, signsIn } from './door.ts'
+import { bodyLimit, isAllowed, passedHeaders, passedQuery, signsIn } from './door.ts'
 
 test('only the listed routes pass the door', () => {
   assert.equal(isAllowed('POST', 'auth/sign-in'), true)
@@ -57,5 +57,13 @@ test('the BVN and its code pass; nothing else under me/ does', () => {
   assert.equal(isAllowed('POST', 'me/bvn'), true)
   assert.equal(isAllowed('POST', 'me/bvn/confirm'), true)
   assert.equal(isAllowed('GET', 'me/bvn'), false)
-  assert.equal(isAllowed('POST', 'me/selfie'), false, 'the selfie is not on the web yet')
+  assert.equal(isAllowed('POST', 'me/selfie'), true)
+  assert.equal(isAllowed('POST', 'me/phone/code'), true)
+  assert.equal(isAllowed('PUT', 'me/next-of-kin'), true)
+  assert.equal(isAllowed('DELETE', 'me/next-of-kin'), false)
+})
+
+test('only a selfie may be large', () => {
+  assert.equal(bodyLimit('me/selfie'), 5 * 1024 * 1024)
+  assert.equal(bodyLimit('vault/transfers'), 16_384)
 })

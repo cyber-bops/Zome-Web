@@ -9,7 +9,7 @@ import { stepWhy, stepWord } from '@/lib/words'
 import type { Checklist, Purse } from '@/server/api'
 import { ArrowIcon, CodeIcon, PayIcon, PlusIcon, ScissorsIcon } from '../icons'
 import { BillCard, BillSheet, type Bill } from './bills'
-import { BvnSheet } from './bvn'
+import { onTheWeb, SetupSheet } from './setup'
 import { FundSheet } from './fund'
 import { PaySheet } from './pay'
 import { Tape, type Filter } from './tape'
@@ -35,7 +35,8 @@ function Ticket({ code, onNew, busy }: { code: Code | null; onNew: () => void; b
 }
 
 export function PurseView({ purse, name, first, openFund, checklist }: { purse: Purse; name: string; first: string; openFund: boolean; checklist: Checklist | null }) {
-  const [sheet, setSheet] = useState<null | 'fund' | 'pay' | 'bvn'>(openFund ? 'fund' : null)
+  const [sheet, setSheet] = useState<null | 'fund' | 'pay' | 'step'>(openFund ? 'fund' : null)
+  const [stepId, setStepId] = useState('bvn')
   const [filter, setFilter] = useState<Filter>('all')
   const [code, setCode] = useState<Code | null>(null)
   const [busy, setBusy] = useState(false)
@@ -123,8 +124,8 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
         </div>
         <div className="row2">
           <Ticket code={code} onNew={newCode} busy={busy} />
-          {next && next.id === 'bvn' && (
-            <button type="button" className="stub" onClick={() => setSheet('bvn')}>
+          {next && onTheWeb.has(next.id) && (
+            <button type="button" className="stub" onClick={() => { setStepId(next.id); setSheet('step') }}>
               <span className="sc"><ScissorsIcon /></span>
               <span className="lbl">Next · {checklist?.done} of {checklist?.total} done</span>
               <b>{stepWord[next.id]}</b>
@@ -132,7 +133,7 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
               <span className="go"><ArrowIcon /></span>
             </button>
           )}
-          {next && next.id !== 'bvn' && (
+          {next && !onTheWeb.has(next.id) && (
             <Link href="/profile" className="stub">
               <span className="sc"><ScissorsIcon /></span>
               <span className="lbl">Next · {checklist?.done} of {checklist?.total} done</span>
@@ -151,8 +152,8 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
         <Tape movements={purse.movements} balance={purse.balance_kobo} name={name} filter={filter} />
       </div>
 
-      {sheet === 'fund' && <FundSheet onClose={close} onVerify={() => setSheet('bvn')} />}
-      {sheet === 'bvn' && <BvnSheet onClose={close} onDone={say} />}
+      {sheet === 'fund' && <FundSheet onClose={close} onVerify={() => { setStepId('bvn'); setSheet('step') }} />}
+      {sheet === 'step' && <SetupSheet step={stepId} onClose={close} onDone={say} />}
       {sheet === 'pay' && <PaySheet balance={purse.balance_kobo} onClose={close} onPaid={say} />}
       {bill && !sheet && <BillSheet bill={bill} onClose={() => { setBill(null); lookForBills() }} onDone={t => { setBills(bs => bs.filter(b => b.id !== bill.id)); say(t) }} />}
       {toast && <div className="toast" role="status">{toast}</div>}

@@ -282,3 +282,46 @@ h1, h2, p { margin: 0; }
   .mark-top { display: none; }
 }
 body.locked { overflow: hidden; }
+
+/* Wide screens, second pass (11 November 2026): no sidebar or frame; a top
+   bar and the same tiles, two columns. */
+.topnav { display: none; }
+.only-wide { display: none; }
+.set { padding: 18px 18px 6px; } .set h2 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.pgrid { display: grid; gap: 6px; padding-top: 8px; }
+.me-card { min-height: 0; } .me-note { font-size: 13px; color: var(--fg-2); margin-top: 18px; }
+.me-card .hd b { font-size: 17px; }
+@media (min-width: 900px) {
+  body { background: var(--bg); }
+  .shell.w { display: block; max-width: 1180px; margin: 0 auto; padding: 0 32px 48px; min-height: 0; }
+  .side, .crumbbar { display: none !important; }
+  .topnav { display: flex; align-items: center; gap: 16px; height: 76px; position: sticky; top: 0; z-index: 10; background: var(--bg); }
+  .topnav .brand { margin: 0; }
+  .tn-pills { display: flex; gap: 4px; margin-left: 24px; padding: 4px; border-radius: 99px; background: var(--raise); box-shadow: var(--shadow); }
+  .tn-pills a { height: 36px; display: grid; place-items: center; padding: 0 16px; border-radius: 99px; font-size: 14px; font-weight: 500; color: var(--fg-2); }
+  .tn-pills a[aria-current="page"] { background: var(--solid); color: var(--on-solid); }
+  .tn-end { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .tn-end .btn { min-height: 42px; padding: 0 18px; font-weight: 500; }
+  .tn-end .btn svg { width: 17px; height: 17px; }
+  .tn-end .avatar { width: 42px; height: 42px; }
+  .app { background: none; border-radius: 0; padding: 0; }
+  .mark-top { display: none; }
+  .wgrid { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 6px; padding-top: 8px; }
+  .wgrid > .wcol { position: sticky; top: 84px; }
+  .bal { padding: 20px 20px 22px; } .bal .main { font-size: 52px; margin-top: 44px; } .bal .second { font-size: 44px; }
+  .act3 { height: 76px; padding: 0 18px; }
+  .only-wide { display: grid; }
+  .wright { display: grid; gap: 6px; align-content: start; }
+  .month { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .month .tile { padding: 16px 18px 18px; }
+  .month span { font-size: 13px; color: var(--fg-2); } .month b { display: block; font-size: 24px; font-weight: 500; letter-spacing: -.03em; margin-top: 18px; }
+  .month b.up { color: var(--good); }
+  .panel { background: var(--raise); border-radius: 22px; padding: 10px 20px 14px; box-shadow: var(--shadow); min-height: 420px; }
+  .panel .pills { margin: 6px 0 4px; }
+  .panel .rows li { padding: 11px 0; border-top: 1px solid var(--line); }
+  .panel .rows li:first-child { border-top: 0; }
+  .pgrid { grid-template-columns: minmax(0, 420px) minmax(0, 1fr); }
+  .me-card { min-height: 200px; }
+}
+.pcard .hd .avatar { color: #0B0B0C; font-size: 22px; }
+@media (min-width: 900px) { .me-card { min-height: 0; } }

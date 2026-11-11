@@ -54,6 +54,12 @@ export function Wallet({ purse, name, openFund }: { purse: Purse; name: string; 
   const [whole, kobo] = naira(purse.balance_kobo).split('.')
   const interest = purse.movements.filter(m => m.kind === 'interest').reduce((a, m) => a + m.amount_kobo, 0)
   const rate = purse.interest_rate_bps > 0 ? (purse.interest_rate_bps / 100).toLocaleString('en-NG', { maximumFractionDigits: 2 }) : null
+  const thisMonth = dayKey(new Date().toISOString()).slice(0, 7)
+  const monthName = new Intl.DateTimeFormat('en-NG', { month: 'long', timeZone: zone }).format(new Date())
+  const inMonth = purse.movements.filter(m => dayKey(m.at).startsWith(thisMonth))
+  const monthIn = inMonth.filter(m => m.amount_kobo > 0 && m.kind !== 'interest').reduce((a, m) => a + m.amount_kobo, 0)
+  const monthOut = -inMonth.filter(m => m.amount_kobo < 0).reduce((a, m) => a + m.amount_kobo, 0)
+  const monthInterest = inMonth.filter(m => m.kind === 'interest').reduce((a, m) => a + m.amount_kobo, 0)
   const waiting = purse.top_ups.find(t => t.state === 'awaiting_payment' && Date.parse(t.expires_at) > Date.now())
 
   return (
@@ -88,7 +94,13 @@ export function Wallet({ purse, name, openFund }: { purse: Purse; name: string; 
           )}
         </div>
 
-        <div>
+        <div className="wright">
+          <div className="month only-wide" aria-label={`This month, ${monthName}`}>
+            <div className="tile"><span>Money in</span><b className="num">{naira(monthIn)}</b></div>
+            <div className="tile"><span>Paid for care</span><b className="num">{naira(monthOut)}</b></div>
+            <div className="tile"><span>Interest</span><b className="num up">{naira(monthInterest)}</b></div>
+          </div>
+          <div className="panel">
           <div className="pills" role="group" aria-label="Show">
             <button type="button" aria-pressed={tab === 'activity'} onClick={() => setTab('activity')}>Activity</button>
             <button type="button" aria-pressed={tab === 'top-ups'} onClick={() => setTab('top-ups')}>Top-ups</button>
@@ -127,6 +139,7 @@ export function Wallet({ purse, name, openFund }: { purse: Purse; name: string; 
                 </ul>
               </section>
             )))}
+          </div>
         </div>
       </div>
 

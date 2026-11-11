@@ -3,28 +3,32 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { HomeIcon, PlusIcon, UserIcon } from '../icons'
+import { ZomeMark } from '../mark'
 
 // Health (the path and alerts) joins these once it is on the web (ADR-0053 §5).
 const pages = [
-  { href: '/', label: 'Care Purse', icon: HomeIcon, group: 'Menu' },
-  { href: '/profile', label: 'Profile', icon: UserIcon, group: 'Account' },
+  { href: '/', label: 'Care Purse', icon: HomeIcon },
+  { href: '/profile', label: 'Profile', icon: UserIcon },
 ]
 
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href))
 
-export function SideNav() {
+/** The wide screen's top bar: the mark, the pages as pills, Add money and the person. */
+export function TopBar({ initial }: { initial: string }) {
   const path = usePathname()
   return (
-    <nav aria-label="Main">
-      {['Menu', 'Account'].map(group => (
-        <div key={group}>
-          <p className="grp">{group}</p>
-          {pages.filter(p => p.group === group).map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href} className="nav" aria-current={isOn(path, href) ? 'page' : undefined}><Icon />{label}</Link>
-          ))}
-        </div>
-      ))}
-    </nav>
+    <header className="topnav">
+      <Link href="/" className="brand flat"><span className="badge"><ZomeMark /></span>Zome</Link>
+      <nav className="tn-pills" aria-label="Main">
+        {pages.map(({ href, label }) => (
+          <Link key={href} href={href} aria-current={isOn(path, href) ? 'page' : undefined}>{label}</Link>
+        ))}
+      </nav>
+      <div className="tn-end">
+        <Link href="/?fund=1" className="btn" scroll={false}><PlusIcon />Add money</Link>
+        <Link href="/profile" className="avatar" aria-label="Profile">{initial}</Link>
+      </div>
+    </header>
   )
 }
 
@@ -38,15 +42,5 @@ export function BottomBar() {
       ))}
       <Link href="/?fund=1" className="rb plus" aria-label="Add money" scroll={false}><PlusIcon /></Link>
     </nav>
-  )
-}
-
-export function Crumbs() {
-  const path = usePathname()
-  const page = pages.find(p => isOn(path, p.href)) ?? pages[0]
-  return (
-    <div className="crumbbar">
-      <span>Zome <span aria-hidden="true">/</span> <b>{page.label}</b></span>
-    </div>
   )
 }

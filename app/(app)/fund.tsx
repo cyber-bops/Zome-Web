@@ -8,9 +8,10 @@ import type { TopUp } from '@/server/api'
 import { BackIcon } from '../icons'
 import { Sheet } from './sheet'
 
-// Adding money by bank transfer (ADR-0024, ADR-0053 §3): an amount on the
-// keypad, then the one-time account Bachs opens for it. The money lands when
-// the transfer arrives; the page shows it waiting until then.
+// Adding money by bank transfer (ADR-0024, ADR-0053 §3): an amount, then the
+// one-time account Bachs opens for it. The money lands when the transfer
+// arrives; the page shows it waiting until then. The amount is typed as on
+// the dashboards; on a phone a keypad is there too.
 
 const MAX_NAIRA = 5_000_000
 
@@ -24,63 +25,66 @@ export function FundSheet({ onClose }: { onClose: () => void }) {
   // never opens a second transfer.
   const key = useRef<{ amount: string; key: string } | null>(null)
 
-  const naira0 = Number(typed || '0')
-  const press = (d: string) => {
+  const amount = Number(typed || '0')
+  const set = (next: string) => {
     setProblem(null)
-    setTyped(t => {
-      if (d === 'back') return t.slice(0, -1)
-      const next = (t === '0' ? '' : t) + d
-      return Number(next) > MAX_NAIRA ? t : next
-    })
+    const digits = next.replace(/\D/g, '').replace(/^0+(?=\d)/, '')
+    if (Number(digits || '0') <= MAX_NAIRA) setTyped(digits)
   }
+  const press = (d: string) => set(d === 'back' ? typed.slice(0, -1) : typed + d)
 
-  const go = async () => {
-    if (naira0 < 100) { setProblem('Add at least ₦100.'); return }
+  const go = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (amount < 100) { setProblem('Add at least ₦100.'); return }
     if (!key.current || key.current.amount !== typed) key.current = { amount: typed, key: `web-${crypto.randomUUID()}` }
     setBusy(true); setProblem(null)
     try {
-      const t = await call<TopUp>('vault/top-ups', 'POST', { amount_kobo: naira0 * 100 }, { 'Idempotency-Key': key.current.key })
+      const t = await call<TopUp>('vault/top-ups', 'POST', { amount_kobo: amount * 100 }, { 'Idempotency-Key': key.current.key })
       setTopUp(t)
       router.refresh()
-    } catch (e) {
-      setProblem(e instanceof Refused ? e.message : 'That didn’t go through. Try again.')
+    } catch (err) {
+      setProblem(err instanceof Refused ? err.message : 'That didn’t go through. Try again.')
     } finally { setBusy(false) }
   }
 
   if (topUp) return (
-    <Sheet title="Send a transfer" onClose={onClose}>
-      {topUp.account_number ? (
-        <>
-          <div className="kv2">
-            <div className="r"><span>Amount</span><b className="num">{naira(topUp.total_kobo)}</b></div>
-            <div className="r"><span>Bank</span><b>{topUp.bank_name}</b></div>
-            <div className="r"><span>Account number</span><b className="num">{topUp.account_number}
-              <button type="button" className="copy" onClick={() => navigator.clipboard?.writeText(topUp.account_number ?? '')}>Copy</button></b></div>
-            <div className="r"><span>Name</span><b>{topUp.account_name}</b></div>
-          </div>
-          <p className="big-note">Send exactly {naira(topUp.total_kobo)} from your bank app{topUp.fee_kobo > 0 ? `, which includes a ${naira(topUp.fee_kobo)} fee` : ''}. This account works for one transfer, for 30 minutes. Your purse shows the money as soon as it arrives.</p>
-        </>
-      ) : <p className="big-note">We’re setting up your transfer details. They’ll show on your purse in a moment.</p>}
-      <button type="button" className="btn lg wide white" onClick={onClose}>Done</button>
+    <Sheet title="Send a transfer" onClose={onClose} narrow
+      lede={topUp.account_number ? `Send exactly ${naira(topUp.total_kobo)} from your bank app. This account takes one transfer, for 30 minutes.` : 'We’re setting up your transfer details. They’ll show on your purse in a moment.'}
+      foot={<button type="button" className="btn span" onClick={onClose}>Done</button>}>
+      {topUp.account_number && (
+        <dl className="facts">
+          <div><dt>Amount</dt><dd className="num">{naira(topUp.total_kobo)}{topUp.fee_kobo > 0 ? <span className="mut"> · includes {naira(topUp.fee_kobo)} fee</span> : null}</dd></div>
+          <div><dt>Bank</dt><dd>{topUp.bank_name}</dd></div>
+          <div><dt>Account number</dt><dd className="num">{topUp.account_number}
+            <button type="button" className="copy" onClick={() => navigator.clipboard?.writeText(topUp.account_number ?? '')}>Copy</button></dd></div>
+          <div><dt>Name</dt><dd>{topUp.account_name}</dd></div>
+        </dl>
+      )}
     </Sheet>
   )
 
   return (
-    <Sheet title="Add money" onClose={onClose}>
-      <div className="amt-card">
-        <div className="top"><span>You add</span><span>By bank transfer</span></div>
-        <div className="row2"><span className={`n num${typed ? '' : ' zero'}`}>{Number(typed || '0').toLocaleString('en-NG')}</span><span className="cur">NGN</span></div>
-        <p className="sub">To your Care Purse, for care only.</p>
-      </div>
-      <div className="quick">
-        {[2000, 5000, 10000, 20000].map(n => <button key={n} type="button" onClick={() => { setProblem(null); setTyped(String(n)) }}>{naira(n * 100, true)}</button>)}
-      </div>
-      <div className="pad">
-        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0'].map(d => <button key={d} type="button" onClick={() => press(d)}>{d}</button>)}
-        <button type="button" aria-label="Delete" onClick={() => press('back')}><BackIcon /></button>
-      </div>
-      {problem && <p className="problem" role="alert">{problem}</p>}
-      <button type="button" className="btn lg wide white" disabled={busy || naira0 === 0} onClick={go}>{busy ? 'Setting up…' : 'Continue'}</button>
-    </Sheet>
+    <form onSubmit={go}>
+      <Sheet title="Add money" lede="By bank transfer, to your Care Purse. It’s for care only." onClose={onClose}
+        foot={<>
+          <button type="button" className="btn secondary" onClick={onClose}>Cancel</button>
+          <button type="button" className="btn" disabled={busy || amount === 0} onClick={() => go()}>{busy ? 'Setting up…' : 'Continue'}</button>
+        </>}>
+        <label className="label" htmlFor="amount">Amount</label>
+        <div className="amount-box">
+          <span>₦</span>
+          <input id="amount" inputMode="numeric" autoComplete="off" placeholder="0" value={amount ? amount.toLocaleString('en-NG') : ''}
+            onChange={e => set(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); go() } }} />
+        </div>
+        <div className="quick">
+          {[2000, 5000, 10000, 20000].map(n => <button key={n} type="button" onClick={() => set(String(n))}>{naira(n * 100, true)}</button>)}
+        </div>
+        <div className="pad phone-only">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '00', '0'].map(d => <button key={d} type="button" onClick={() => press(d)}>{d}</button>)}
+          <button type="button" aria-label="Delete" onClick={() => press('back')}><BackIcon /></button>
+        </div>
+        {problem && <p className="problem" role="alert">{problem}</p>}
+      </Sheet>
+    </form>
   )
 }

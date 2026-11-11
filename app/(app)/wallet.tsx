@@ -203,25 +203,24 @@ export function Wallet({ purse, name, openFund, checklist }: { purse: Purse; nam
 
       {sheet === 'fund' && <FundSheet onClose={close} />}
       {sheet === 'purses' && (
-        <Sheet onClose={close} light>
-          <h2 className="sheet-title">Your purses</h2>
+        <Sheet title="Your purses" lede="Where your money for care is kept." onClose={close} narrow
+          foot={<><Link href="/profile" className="btn secondary" onClick={close}>Manage</Link><button type="button" className="btn" onClick={() => setSheet('fund')}>Add money</button></>}>
           <div className="stack">
             <div className="pcard">
               <div className="hd"><span className="coin" aria-hidden="true" /><div><b>Care Purse</b><span>{purseFor}</span></div>
                 <span className="tick" aria-label="Chosen"><CheckIcon /></span></div>
-              <div className="ft"><Link href="/profile" onClick={close}>Manage</Link><span className="n num">{whole}.{kobo}</span></div>
+              <div className="ft"><span className="mut">Balance</span><span className="n num">{whole}.{kobo}</span></div>
             </div>
           </div>
           <p className="later">Health money from an employer on Zome for Teams will show here as its own purse.</p>
         </Sheet>
       )}
       {(sheet === 'pay' || sheet === 'code') && (
-        <Sheet title={sheet === 'pay' ? 'Pay for care' : 'Pay code'} onClose={close}>
-          <p className="big-note">{sheet === 'pay'
+        <Sheet narrow title={sheet === 'pay' ? 'Pay for care' : 'Pay code'} onClose={close}
+          lede={sheet === 'pay'
             ? 'Paying a clinic, pharmacy or lab from the web is coming next. Until then, pay from the Zome app.'
-            : 'Showing a pay code at the counter is coming to the web next. Until then, use the Zome app.'}</p>
-          <button type="button" className="btn lg wide white" onClick={close}>OK</button>
-        </Sheet>
+            : 'Showing a pay code at the counter is coming to the web next. Until then, use the Zome app.'}
+          foot={<button type="button" className="btn span" onClick={close}>OK</button>} />
       )}
     </>
   )

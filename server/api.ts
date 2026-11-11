@@ -120,3 +120,15 @@ export async function purse(): Promise<Purse | null> {
     throw e
   }
 }
+
+export type Checklist = { steps: { id: string; state: 'done' | 'to_do' | 'waiting' | 'unavailable' }[]; done: number; total: number; percent: number }
+
+/** The profile checklist (BVN, NIN, selfie, …), or null if it can't be read just now. */
+export async function checklist(): Promise<Checklist | null> {
+  try {
+    return await api<Checklist>('/v1/me/checklist')
+  } catch (e) {
+    if (e instanceof APIError) return null
+    throw e
+  }
+}

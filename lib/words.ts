@@ -16,7 +16,8 @@ const named: Record<string, string> = { top_up: 'Added', reversal: 'Bank reversa
 
 /** What a movement is called on a receipt. */
 export function movementTitle(m: { kind: string; amount_kobo: number; from?: string }): string {
-  if (m.kind === 'team') return m.from ? m.from : 'From your employer'
+  if (m.kind === 'team') return m.from ? `From ${m.from}` : 'From your employer'
+  if (m.kind === 'payment' && m.from) return `Paid ${m.from}`
   return named[m.kind] ?? (m.amount_kobo >= 0 ? 'Received' : 'Paid')
 }
 

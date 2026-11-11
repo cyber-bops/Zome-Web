@@ -62,7 +62,8 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
     // A bill that arrives while the code is showing opens by itself.
     const fresh = bills.find(b => !seen.current.has(b.id))
     bills.forEach(b => seen.current.add(b.id))
-    if (fresh && live && !sheet) setBill(fresh)
+    // A code takes one bill (ADR-0029): once one comes, the ticket is spent.
+    if (fresh && live) { setCode(null); if (!sheet) setBill(fresh) }
   }, [bills, live, sheet])
   useEffect(() => { if (openFund) setSheet('fund') }, [openFund])
   const close = useCallback(() => { setSheet(null); if (location.search.includes('fund')) history.replaceState(null, '', '/') }, [])

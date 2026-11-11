@@ -318,3 +318,5 @@ h1, h2, h3, p { margin: 0; }
 .chosen { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--key); box-shadow: 0 0 0 1px var(--rule) inset; font-weight: 500; }
 .found { color: var(--green); font-weight: 600; font-size: 15px; }
 .kv.top-gap { margin-top: 18px; }
+.big-digits { font-size: 26px; letter-spacing: .12em; height: 58px; }
+.btn.small-btn { height: 32px; padding: 0 14px; font-size: 13px; margin-left: auto; border-radius: 9px; }

@@ -52,3 +52,10 @@ test('a transfer to a bank is keyed, its lookup is not', () => {
   assert.equal(isAllowed('GET', 'vault/transfers/0b6f1e2a-1111-4222-8333-944455556666'), true)
   assert.equal(isAllowed('DELETE', 'vault/transfers'), false)
 })
+
+test('the BVN and its code pass; nothing else under me/ does', () => {
+  assert.equal(isAllowed('POST', 'me/bvn'), true)
+  assert.equal(isAllowed('POST', 'me/bvn/confirm'), true)
+  assert.equal(isAllowed('GET', 'me/bvn'), false)
+  assert.equal(isAllowed('POST', 'me/selfie'), false, 'the selfie is not on the web yet')
+})

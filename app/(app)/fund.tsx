@@ -15,11 +15,12 @@ const MAX_NAIRA = 5_000_000
 const QUICK = [2000, 5000, 10000, 20000]
 const lagosTime = (iso: string) => new Intl.DateTimeFormat('en-NG', { hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 
-export function FundSheet({ onClose }: { onClose: () => void }) {
+export function FundSheet({ onClose, onVerify }: { onClose: () => void; onVerify?: () => void }) {
   const router = useRouter()
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState(false)
   const [problem, setProblem] = useState<string | null>(null)
+  const [verify, setVerify] = useState(false)
   const [topUp, setTopUp] = useState<TopUp | null>(null)
   const [copied, setCopied] = useState(false)
   // One key per amount, so a retry after a dropped connection never opens a second transfer.
@@ -42,6 +43,7 @@ export function FundSheet({ onClose }: { onClose: () => void }) {
       router.refresh()
     } catch (err) {
       setProblem(err instanceof Refused ? err.message : 'That didn’t go through. Try again.')
+      setVerify(err instanceof Refused && err.type === 'VerifyFirst')
     } finally { setBusy(false) }
   }
 
@@ -82,6 +84,7 @@ export function FundSheet({ onClose }: { onClose: () => void }) {
       </div>
       <p className="small">By bank transfer, from any bank app.</p>
       {problem && <p className="err" role="alert">{problem}</p>}
+      {verify && onVerify && <button type="button" className="btn soft top-gap wide" onClick={onVerify}>Add your BVN</button>}
     </Sheet>
   )
 }

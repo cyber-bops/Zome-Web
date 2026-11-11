@@ -6,6 +6,9 @@ const allowed: Array<[string, RegExp]> = [
   ['POST', /^auth\/(start|verify|sign-in|sign-out|sign-out-all|password)$/],
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
+  // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
+  ['POST', /^me\/bvn$/],
+  ['POST', /^me\/bvn\/confirm$/],
   ['GET', /^vault$/],
   ['POST', /^vault\/top-ups$/],
   ['POST', /^vault\/pay-codes$/],

@@ -102,13 +102,23 @@ export type TopUp = {
   expires_at: string
   created_at: string
 }
+export type Mandate = {
+  id: string
+  state: 'opening' | 'awaiting_authorisation' | 'active' | 'suspended' | 'rejected' | 'cancelled' | 'failed' | 'expired'
+  reason?: string
+  bank_code: string; bank_name: string; account_number: string; account_name: string
+  limit_kobo: number
+  authorisation: { text: string; amount_kobo?: number; account_number?: string; bank_name?: string }
+}
 export type Purse = {
   currency: 'NGN'
   balance_kobo: number
   movements: Movement[]
   top_ups: TopUp[]
   interest_rate_bps: number
-  linked_account?: { state: string; bank_name: string; account_number: string; account_name: string }
+  linked_account?: Mandate
+  schedule?: { id: string; amount_kobo: number; cadence: 'daily' | 'weekly' | 'monthly'; starts_on: string; next_on?: string }
+  debits?: { id: string; state: string; amount_kobo: number; fee_kobo: number; total_kobo: number; scheduled: boolean; created_at: string }[]
 }
 
 /** The Care Purse, or null when it is not open to this person (the API answers 404). */

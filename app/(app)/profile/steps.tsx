@@ -6,8 +6,7 @@ import type { Checklist } from '@/server/api'
 import { CheckIcon } from '../../icons'
 import { onTheWeb, SetupSheet } from '../setup'
 
-// The set-up checklist. Linking a bank account is in the app for now; the
-// other steps are done here.
+// The set-up checklist; every step can be done here.
 export function Steps({ list }: { list: Checklist }) {
   const [open, setOpen] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)

@@ -4,13 +4,14 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { BvnSheet } from './bvn'
+import { LinkSheet } from './link'
 import { Sheet } from './sheet'
 
 // The set-up steps the web can do, in the app's words (IdentityScenes,
 // ProfileChecklistView), through the app's own routes: /v1/me/nin,
 // /v1/me/selfie, /v1/me/phone/code and /confirm, /v1/me/next-of-kin.
 
-export const onTheWeb = new Set(['bvn', 'nin', 'selfie', 'phone', 'next_of_kin'])
+export const onTheWeb = new Set(['bvn', 'nin', 'selfie', 'phone', 'next_of_kin', 'bank_account'])
 const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go through. Try again.'
   : e.status === 404 ? 'This isn’t available right now. Try again later.' : e.message
 
@@ -165,6 +166,7 @@ export function SetupSheet({ step, onClose, onDone }: { step: string; onClose: (
     case 'phone': return <PhoneSheet onClose={onClose} onDone={onDone} />
     case 'selfie': return <SelfieSheet onClose={onClose} onDone={onDone} />
     case 'next_of_kin': return <KinSheet onClose={onClose} onDone={onDone} />
+    case 'bank_account': return <LinkSheet onClose={onClose} onDone={onDone} />
     default: return null
   }
 }

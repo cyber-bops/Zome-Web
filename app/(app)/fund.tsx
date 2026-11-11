@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
-import type { TopUp } from '@/server/api'
+import type { Mandate, TopUp } from '@/server/api'
+import { OneTap } from './link'
 import { Sheet } from './sheet'
 
 // Adding money by bank transfer (ADR-0024, ADR-0053 §3): an amount, then the
@@ -15,7 +16,7 @@ const MAX_NAIRA = 5_000_000
 const QUICK = [2000, 5000, 10000, 20000]
 const lagosTime = (iso: string) => new Intl.DateTimeFormat('en-NG', { hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 
-export function FundSheet({ onClose, onVerify }: { onClose: () => void; onVerify?: () => void }) {
+export function FundSheet({ onClose, onVerify, linked, onDone }: { onClose: () => void; onVerify?: () => void; linked?: Mandate; onDone?: (t: string) => void }) {
   const router = useRouter()
   const [typed, setTyped] = useState('')
   const [busy, setBusy] = useState(false)
@@ -85,6 +86,7 @@ export function FundSheet({ onClose, onVerify }: { onClose: () => void; onVerify
       <p className="small">By bank transfer, from any bank app.</p>
       {problem && <p className="err" role="alert">{problem}</p>}
       {verify && onVerify && <button type="button" className="btn soft top-gap wide" onClick={onVerify}>Add your BVN</button>}
+      {linked?.state === 'active' && <OneTap m={linked} amount={amount * 100} onDone={t => { onClose(); onDone?.(t) }} />}
     </Sheet>
   )
 }

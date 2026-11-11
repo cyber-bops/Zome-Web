@@ -67,3 +67,11 @@ test('only a selfie may be large', () => {
   assert.equal(bodyLimit('me/selfie'), 5 * 1024 * 1024)
   assert.equal(bodyLimit('vault/transfers'), 16_384)
 })
+
+test('a linked account: one-tap funding is keyed, unlinking is a DELETE of the current link only', () => {
+  assert.deepEqual(passedHeaders('vault/debits', new Headers({ 'Idempotency-Key': 'web-1' })), { 'Idempotency-Key': 'web-1' })
+  assert.deepEqual(passedHeaders('vault/debits/quote', new Headers({ 'Idempotency-Key': 'web-1' })), {})
+  assert.equal(isAllowed('DELETE', 'vault/mandates/current'), true)
+  assert.equal(isAllowed('DELETE', 'vault/mandates/abc'), false)
+  assert.equal(isAllowed('PUT', 'vault/schedule'), true)
+})

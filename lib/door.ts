@@ -24,6 +24,15 @@ const allowed: Array<[string, RegExp]> = [
   ['POST', new RegExp(`^vault/merchants/${id}/pay$`)],
   ['GET', /^vault\/bills$/],
   ['POST', new RegExp(`^vault/bills/${id}/(approve|decline)$`)],
+  // A linked bank account: one-tap funding and saving automatically (ADR-0025).
+  ['GET', /^vault\/banks$/],
+  ['POST', /^vault\/account-lookup$/],
+  ['POST', /^vault\/mandates$/],
+  ['DELETE', /^vault\/mandates\/current$/],
+  ['POST', /^vault\/debits\/quote$/],
+  ['POST', /^vault\/debits$/],
+  ['PUT', /^vault\/schedule$/],
+  ['DELETE', /^vault\/schedule$/],
   // Paying a bank account outside the network (ADR-0036).
   ['GET', /^vault\/transfers\/setup$/],
   ['GET', /^vault\/transfer-banks$/],
@@ -44,7 +53,7 @@ export const signsIn = (path: string) => path === 'auth/verify' || path === 'aut
 export const sessionless = (path: string) => path === 'auth/start' || signsIn(path)
 
 /** Anything that moves money carries an Idempotency-Key, so a retry never pays twice. */
-const keyed = (path: string) => path === 'vault/top-ups' || path === 'vault/transfers' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
+const keyed = (path: string) => path === 'vault/top-ups' || path === 'vault/transfers' || path === 'vault/debits' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
 
 /** The one header passed on from the browser: the Idempotency-Key of a payment. */
 export function passedHeaders(path: string, given: Headers): Record<string, string> {

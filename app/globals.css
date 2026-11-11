@@ -322,3 +322,6 @@ h1, h2, h3, p { margin: 0; }
 .btn.small-btn { height: 32px; padding: 0 14px; font-size: 13px; margin-left: auto; border-radius: 9px; }
 .selfie { display: block; width: 220px; max-width: 100%; aspect-ratio: 3 / 4; object-fit: cover; margin: 4px auto; border-radius: 120px / 150px; background: var(--key); box-shadow: 0 0 0 1px var(--rule) inset; }
 .selfie.empty { background: var(--key) radial-gradient(circle at 50% 40%, rgba(21,25,31,.08) 0 22%, transparent 23%); }
+.onetap { margin-top: 16px; padding-top: 14px; border-top: 1.5px dashed var(--rule); }
+.row .b { font-weight: 600; }
+.sheet-paper + .sheet-paper, .wcol > .sheet-paper + .sheet-paper { margin-top: 14px; }

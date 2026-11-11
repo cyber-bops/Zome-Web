@@ -1,6 +1,7 @@
 // What the browser may ask the API for through /api/z, and nothing else.
 // Each slice of the web app adds its routes here (ADR-0053, "Built in this order").
 
+const id = '[0-9a-f-]{36}'
 const allowed: Array<[string, RegExp]> = [
   ['POST', /^auth\/(start|verify|sign-in|sign-out|sign-out-all|password)$/],
   ['GET', /^me\/profile$/],
@@ -8,6 +9,13 @@ const allowed: Array<[string, RegExp]> = [
   ['GET', /^vault$/],
   ['POST', /^vault\/top-ups$/],
   ['POST', /^vault\/pay-codes$/],
+  // Paying for care: the PIN, the network's businesses, bills sent to a pay code.
+  ['GET', /^vault\/pin$/],
+  ['POST', /^vault\/pin$/],
+  ['GET', /^vault\/merchants$/],
+  ['POST', new RegExp(`^vault/merchants/${id}/pay$`)],
+  ['GET', /^vault\/bills$/],
+  ['POST', new RegExp(`^vault/bills/${id}/(approve|decline)$`)],
 ]
 
 export function isAllowed(method: string, path: string): boolean {
@@ -20,8 +28,18 @@ export const signsIn = (path: string) => path === 'auth/verify' || path === 'aut
 /** Routes that need no session at all. */
 export const sessionless = (path: string) => path === 'auth/start' || signsIn(path)
 
-/** The one header passed on from the browser: a top-up's Idempotency-Key, so a retry never adds money twice. */
+/** Anything that moves money carries an Idempotency-Key, so a retry never pays twice. */
+const keyed = (path: string) => path === 'vault/top-ups' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
+
+/** The one header passed on from the browser: the Idempotency-Key of a payment. */
 export function passedHeaders(path: string, given: Headers): Record<string, string> {
   const key = given.get('idempotency-key')?.trim()
-  return path === 'vault/top-ups' && key && key.length <= 100 && /^[\w-]+$/.test(key) ? { 'Idempotency-Key': key } : {}
+  return keyed(path) && key && key.length <= 100 && /^[\w-]+$/.test(key) ? { 'Idempotency-Key': key } : {}
+}
+
+/** The query a route may carry: the search words for the network's businesses, nothing else. */
+export function passedQuery(path: string, given: URLSearchParams): string {
+  if (path !== 'vault/merchants') return ''
+  const q = given.get('q')?.trim().slice(0, 80)
+  return q ? `?${new URLSearchParams({ q })}` : ''
 }

@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { api, APIError } from '@/server/api'
 import { SESSION_COOKIE, SESSION_COOKIE_OPTIONS, sessionCookieAge } from '@/lib/session'
-import { isAllowed, passedHeaders, sessionless, signsIn } from '@/lib/door'
+import { isAllowed, passedHeaders, passedQuery, sessionless, signsIn } from '@/lib/door'
 
 // The browser's one door to the API: /api/z/<path> forwards to /v1/<path>,
 // only for the routes and methods listed in lib/door.ts. Anything that changes
@@ -38,7 +38,7 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   }
   const jar = await cookies()
   try {
-    const data = await api<Record<string, unknown> | null>(`/v1/${path}`, {
+    const data = await api<Record<string, unknown> | null>(`/v1/${path}${passedQuery(path, new URL(request.url).searchParams)}`, {
       method: request.method,
       body,
       // A sign-in carries the session it replaces, if any, so the API ends it

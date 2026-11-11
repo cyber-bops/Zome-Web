@@ -287,3 +287,31 @@ h1, h2, h3, p { margin: 0; }
 .mcard b.in { color: var(--green); }
 .mcard small { font-size: 13px; color: var(--ink-3); margin-top: -8px; }
 @media (max-width: 999px) { .mcards { grid-template-columns: 1fr 1fr; margin-top: 26px; } .mcards .mcard:last-child { grid-column: 1 / -1; } .mcard b { font-size: 22px; } }
+
+/* ---------- Paying: the PIN, the provider, the bill ---------- */
+.pin-dots { display: flex; justify-content: center; gap: 16px; margin: 6px 0 20px; }
+.pin-dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); }
+.pin-dots i.on { background: var(--ink); }
+.pin-dots.shake { animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.pad button { height: 54px; border-radius: 12px; font-size: 22px; font-family: var(--f-mono); }
+.pad button:hover { background: var(--key); }
+.center { text-align: center; }
+.top-gap { margin-top: 18px; }
+.pick { display: grid; gap: 4px; max-height: 50vh; overflow-y: auto; margin-inline: -8px; }
+.pick button { display: flex; gap: 12px; align-items: center; text-align: left; padding: 10px 8px; border-radius: 10px; }
+.pick button:hover { background: var(--key); }
+.pick .pin { width: 40px; height: 40px; border-radius: 10px; background: var(--key); display: grid; place-items: center; font-family: var(--f-mono); font-size: 12.5px; font-weight: 600; box-shadow: 0 0 0 1px var(--rule) inset; flex: none; }
+.pick b { display: block; font-weight: 500; font-size: 15px; } .pick span.grow > span { font-size: 13px; color: var(--ink-2); }
+.modal .search { margin-bottom: 12px; }
+.paid-slip { position: relative; padding-top: 8px; }
+.stamp.big { position: absolute; right: 8px; top: -6px; font-size: 18px; padding: 4px 12px; border-width: 2.5px; animation: slam .45s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes slam { from { transform: rotate(-20deg) scale(2.2); opacity: 0; } to { transform: rotate(-9deg) scale(1); opacity: .85; } }
+.paid-slip .kv { margin-top: 44px; }
+.kv dd.in { color: var(--green); }
+.bill-card { width: 100%; margin-top: 22px; display: grid; gap: 4px; text-align: left; position: relative; padding: 16px 110px 16px 20px; border-radius: 12px; background: var(--paper) var(--grain);
+  border: 2px solid var(--blue); box-shadow: 0 12px 26px rgba(11,111,241,.12); }
+.bill-card b { font-size: 18px; font-weight: 500; } .bill-card .d { font-size: 14px; color: var(--ink-2); }
+.bill-card .lbl { color: var(--blue); }
+.bill-card .go-word { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: var(--blue); color: #fff; font-weight: 500; padding: 10px 16px; border-radius: 10px; }

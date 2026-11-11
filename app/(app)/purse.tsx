@@ -1,15 +1,16 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
 import { monthTotals } from '@/lib/purse'
 import { stepWhy, stepWord } from '@/lib/words'
 import type { Checklist, Purse } from '@/server/api'
 import { ArrowIcon, CodeIcon, PayIcon, PlusIcon, ScissorsIcon } from '../icons'
+import { BillCard, BillSheet, type Bill } from './bills'
 import { FundSheet } from './fund'
-import { Sheet } from './sheet'
+import { PaySheet } from './pay'
 import { Tape, type Filter } from './tape'
 
 // The purse, printed: the total, three keys (A, P, C on a keyboard), the
@@ -39,6 +40,30 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [pressed, setPressed] = useState<string | null>(null)
+  const [bills, setBills] = useState<Bill[]>([])
+  const [bill, setBill] = useState<Bill | null>(null)
+
+  // Bills sent to the pay code: looked for on arrival, and every few seconds
+  // while a code is live, so a bill shows the moment the counter sends it.
+  const lookForBills = useCallback(() => {
+    call<{ bills: Bill[] }>('vault/bills').then(r => {
+      setBills(r.bills)
+    }, () => {})
+  }, [])
+  useEffect(() => { lookForBills() }, [lookForBills])
+  const live = !!code && Date.parse(code.expires_at) > Date.now()
+  useEffect(() => {
+    if (!live) return
+    const t = setInterval(lookForBills, 4000)
+    return () => clearInterval(t)
+  }, [live, lookForBills])
+  const seen = useRef<Set<string>>(new Set())
+  useEffect(() => {
+    // A bill that arrives while the code is showing opens by itself.
+    const fresh = bills.find(b => !seen.current.has(b.id))
+    bills.forEach(b => seen.current.add(b.id))
+    if (fresh && live && !sheet) setBill(fresh)
+  }, [bills, live, sheet])
   useEffect(() => { if (openFund) setSheet('fund') }, [openFund])
   const close = useCallback(() => { setSheet(null); if (location.search.includes('fund')) history.replaceState(null, '', '/') }, [])
   const say = (t: string) => { setToast(t); setTimeout(() => setToast(null), 2400) }
@@ -56,14 +81,14 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
   // A, P and C, as on the keys.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (sheet || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test((e.target as HTMLElement).tagName)) return
+      if (sheet || bill || e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA|SELECT/.test((e.target as HTMLElement).tagName)) return
       const k = e.key.toLowerCase()
       if (k === 'a') { setPressed('a'); setSheet('fund') } else if (k === 'p') { setPressed('p'); setSheet('pay') } else if (k === 'c') { setPressed('c'); newCode() } else return
       setTimeout(() => setPressed(null), 140)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [sheet, newCode])
+  }, [sheet, bill, newCode])
 
   const [whole, kobo] = (purse.balance_kobo / 100).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).split('.')
   const month = monthTotals(purse.movements)
@@ -83,6 +108,7 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
           <span>{month.interest > 0 ? `+${naira(month.interest)} interest this month` : 'No interest yet this month'}</span>
         </p>
         {waiting && <p className="waiting">Waiting for {naira(waiting.total_kobo)} by transfer</p>}
+        {bills.map(b => <BillCard key={b.id} bill={b} onOpen={() => setBill(b)} />)}
         <div className="keys">
           <button type="button" className={`key pri${pressed === 'a' ? ' pressed' : ''}`} onClick={() => setSheet('fund')}><span className="ic"><PlusIcon /></span><span>Add<span className="long"> money</span></span><kbd>A</kbd></button>
           <button type="button" className={`key${pressed === 'p' ? ' pressed' : ''}`} onClick={() => setSheet('pay')}><span className="ic"><PayIcon /></span><span>Pay<span className="long"> for care</span></span><kbd>P</kbd></button>
@@ -115,10 +141,8 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
       </div>
 
       {sheet === 'fund' && <FundSheet onClose={close} />}
-      {sheet === 'pay' && (
-        <Sheet eyebrow="Pay for care" title="Coming soon on the web" lede="Pay a clinic, pharmacy or lab from the Zome app for now, or show a pay code at the counter." onClose={close}
-          foot={<><button type="button" className="btn soft" onClick={close}>Close</button><button type="button" className="btn" onClick={() => { close(); newCode() }}>Show a pay code</button></>} />
-      )}
+      {sheet === 'pay' && <PaySheet balance={purse.balance_kobo} onClose={close} onPaid={say} />}
+      {bill && !sheet && <BillSheet bill={bill} onClose={() => { setBill(null); lookForBills() }} onDone={t => { setBills(bs => bs.filter(b => b.id !== bill.id)); say(t) }} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   )

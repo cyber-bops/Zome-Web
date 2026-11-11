@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { isAllowed, passedHeaders, signsIn } from './door.ts'
+import { isAllowed, passedHeaders, passedQuery, signsIn } from './door.ts'
 
 test('only the listed routes pass the door', () => {
   assert.equal(isAllowed('POST', 'auth/sign-in'), true)
@@ -25,4 +25,22 @@ test('only a top-up passes its Idempotency-Key on', () => {
   assert.deepEqual(passedHeaders('auth/sign-in', h), {})
   assert.deepEqual(passedHeaders('vault/top-ups', new Headers({ 'Idempotency-Key': 'bad key; x' })), {})
   assert.equal(isAllowed('POST', 'vault/top-ups'), true)
+})
+
+test('paying for care opens only its own routes', () => {
+  const org = '0b6f1e2a-1111-4222-8333-944455556666'
+  assert.equal(isAllowed('POST', `vault/merchants/${org}/pay`), true)
+  assert.equal(isAllowed('POST', 'vault/merchants/../pay'), false)
+  assert.equal(isAllowed('POST', `vault/bills/${org}/approve`), true)
+  assert.equal(isAllowed('POST', `vault/bills/${org}/refund`), false)
+  assert.equal(isAllowed('POST', 'vault/pin/change'), false, 'changing a PIN is not on the web yet')
+  const h = new Headers({ 'Idempotency-Key': 'web-9' })
+  assert.deepEqual(passedHeaders(`vault/merchants/${org}/pay`, h), { 'Idempotency-Key': 'web-9' })
+  assert.deepEqual(passedHeaders(`vault/bills/${org}/approve`, h), {})
+})
+
+test('only the search words reach the directory', () => {
+  assert.equal(passedQuery('vault/merchants', new URLSearchParams({ q: 'pharmacy', evil: '1' })), '?q=pharmacy')
+  assert.equal(passedQuery('vault/merchants', new URLSearchParams()), '')
+  assert.equal(passedQuery('vault', new URLSearchParams({ q: 'x' })), '')
 })

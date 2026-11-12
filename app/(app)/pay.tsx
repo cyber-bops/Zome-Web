@@ -17,7 +17,9 @@ type Paid = { bill: { receipt: string; merchant: string; amount_kobo: number; cr
 const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
 const initials = (n: string) => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
-export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClose: () => void; onPaid: (t: string) => void }) {
+/** `fund`: pay from a Care Fund instead of Care Purse (ADR-0054); only businesses in the network. */
+export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; onClose: () => void; onPaid: (t: string) => void; fund?: { id: string; title: string } }) {
+  const from = fund ? 'the fund' : 'your Care Purse'
   const router = useRouter()
   const [step, setStep] = useState<'find' | 'amount' | 'choose' | 'again' | 'pin' | 'paid' | 'bank'>('find')
   const [q, setQ] = useState('')
@@ -45,7 +47,7 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
 
   const toAmount = async () => {
     if (amount < 10000) { setProblem('Pay at least ₦100.'); return }
-    if (amount > balance) { setProblem(`Your Care Purse has ${naira(balance)}. Fund it first.`); return }
+    if (amount > balance) { setProblem(fund ? `The fund has ${naira(balance)}.` : `Your Care Purse has ${naira(balance)}. Fund it first.`); return }
     setProblem(null)
     try {
       const st = await call<{ set: boolean; locked_until?: string }>('vault/pin')
@@ -59,15 +61,15 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
     const id = `${to.id}:${amount}`
     if (!key.current || key.current.for !== id) key.current = { for: id, key: `web-${crypto.randomUUID()}` }
     try {
-      const r = await call<Paid>(`vault/merchants/${to.id}/pay`, 'POST', { amount_kobo: amount, pin, note: note.trim() }, { 'Idempotency-Key': key.current.key })
-      setPaid(r); setStep('paid'); router.refresh()
+      const r = await call<Paid>(fund ? `me/care-fund/${fund.id}/pay/${to.id}` : `vault/merchants/${to.id}/pay`, 'POST', { amount_kobo: amount, pin, note: note.trim() }, { 'Idempotency-Key': key.current.key })
+      setPaid({ ...r, cashback_kobo: r.cashback_kobo ?? 0 }); setStep('paid'); router.refresh()
       onPaid(`Paid ${naira(r.bill.amount_kobo)} to ${r.bill.merchant}`)
       return null
     } catch (e) {
       if (e instanceof Refused && e.status >= 400 && e.status < 500 && !/pin/i.test(e.message)) { setProblem(e.message); setStep('amount'); return null }
       return words(e)
     }
-  }, [to, amount, note, router, onPaid])
+  }, [to, amount, note, router, onPaid, fund])
 
   if (step === 'bank') return <TransferFlow balance={balance} onClose={onClose} onPaid={onPaid} onBack={() => setStep('find')} />
   if (step === 'choose') return (
@@ -91,7 +93,7 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
         <span className="stamp big">PAID</span>
         <dl className="kv">
           <div><dt>To</dt><dd>{paid.bill.merchant}</dd></div>
-          <div><dt>From</dt><dd>Care Purse</dd></div>
+          <div><dt>From</dt><dd>{fund ? `Care Fund · ${fund.title}` : 'Care Purse'}</dd></div>
           {note.trim() && <div><dt>For</dt><dd>{note.trim()}</dd></div>}
           {paid.cashback_kobo > 0 && <div><dt>Cashback</dt><dd className="in">+{naira(paid.cashback_kobo)}</dd></div>}
         </dl>
@@ -99,7 +101,7 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
     </Sheet>
   )
   if (step === 'amount' && to) return (
-    <Sheet eyebrow="Pay a bill" title={to.name} lede={to.address || to.category} onClose={onClose}
+    <Sheet eyebrow={fund ? 'Pay from the fund' : 'Pay a bill'} title={to.name} lede={to.address || to.category} onClose={onClose}
       foot={<><button type="button" className="btn soft" onClick={() => { setProblem(null); setStep('find') }}>Back</button><button type="button" className="btn" disabled={!amount} onClick={toAmount}>Confirm & Pay</button></>}>
       <label className="sr" htmlFor="pay-amount">Amount</label>
       <div className="amt"><span>₦</span>
@@ -109,13 +111,13 @@ export function PaySheet({ balance, onClose, onPaid }: { balance: number; onClos
       </div>
       <label className="label top-gap" htmlFor="pay-note">What it’s for (optional)</label>
       <input id="pay-note" className="field" maxLength={80} value={note} onChange={e => setNote(e.target.value)} placeholder="Consultation, prescription…" />
-      <p className="small">{naira(balance)} in your Care Purse.</p>
+      <p className="small">{naira(balance)} in {from}.</p>
       {problem && <p className="err" role="alert">{problem}</p>}
     </Sheet>
   )
   return (
-    <Sheet eyebrow="Pay a bill" title="Find the provider" onClose={onClose}
-      foot={<button type="button" className="btn soft span" onClick={() => setStep('bank')}>Outside the network: pay a bank account</button>}>
+    <Sheet eyebrow={fund ? 'Pay from the fund' : 'Pay a bill'} title="Find the provider" onClose={onClose}
+      foot={fund ? undefined : <button type="button" className="btn soft span" onClick={() => setStep('bank')}>Outside the network: pay a bank account</button>}>
       <label className="search"><span className="lbl">Find</span>
         <input id="pay-find" value={q} onChange={e => { setProblem(null); setQ(e.target.value) }} placeholder="Clinic, pharmacy or lab" autoFocus autoComplete="off" /></label>
       <div className="pick">

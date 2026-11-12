@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
-import type { GiftLink, Movement } from '@/server/api'
+import type { GiftLink, Movement, MyCareFund } from '@/server/api'
+import { CareFundPanel } from './carefund'
 import { Sheet } from '../sheet'
 
 // Family (ADR-0053 §6): the link that lets family give to the purse, and
@@ -13,12 +14,14 @@ const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go throug
   : e.status === 404 ? 'The family link isn’t available right now.' : e.message
 const day = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 
-export function FamilyView({ link, origin, first, gifts, open }: { link: GiftLink | null; origin: string; first: string; gifts: Movement[]; open: boolean }) {
+export function FamilyView({ link, origin, first, gifts, open, fund }: { link: GiftLink | null; origin: string; first: string; gifts: Movement[]; open: boolean; fund: MyCareFund | null }) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [problem, setProblem] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [ask, setAsk] = useState<null | 'replace' | 'off'>(null)
+  const [toast, setToast] = useState<string | null>(null)
+  const say = (t: string) => { setToast(t); setTimeout(() => setToast(null), 3200) }
   const url = link ? `${origin}/give/${link.slug}` : ''
   const given = gifts.reduce((a, m) => a + m.amount_kobo, 0)
   const share = `I’m keeping a Care Purse on Zome for my health. If you’d like to help, you can add to it here (it can only be spent on care): ${url}`
@@ -58,6 +61,7 @@ export function FamilyView({ link, origin, first, gifts, open }: { link: GiftLin
           </section>
         )}
         {problem && <p className="err" role="alert">{problem}</p>}
+        {open && fund && <CareFundPanel data={fund} origin={origin} onSay={say} />}
       </div>
       <div>
         <section className="sheet-paper">
@@ -67,6 +71,7 @@ export function FamilyView({ link, origin, first, gifts, open }: { link: GiftLin
           ))}
         </section>
       </div>
+      {toast && <div className="toast" role="status">{toast}</div>}
       {ask === 'replace' && (
         <Sheet eyebrow="Family link" title="Make a new link?" lede="Your old link stops working at once. Anyone who has it will see that it’s closed." onClose={() => setAsk(null)}
           foot={<><button type="button" className="btn soft" onClick={() => setAsk(null)}>Cancel</button><button type="button" className="btn" disabled={busy} onClick={() => act('make')}>{busy ? 'Making…' : 'Make a new link'}</button></>} />

@@ -13,8 +13,10 @@ const lagos = (iso: string) => new Intl.DateTimeFormat('en-NG', { hour: 'numeric
 
 // The gift, written on a receipt: how much, from whom, a note, where the
 // receipt goes; then the one-time account to transfer to.
-export function GiveForm({ slug, page }: { slug: string; page: GivingPage }) {
+/** `fund`: the gift goes to a Care Fund (ADR-0054) at /v1/fund/{slug}, not a Care Purse. */
+export function GiveForm({ slug, page, fund }: { slug: string; page: GivingPage; fund?: { title: string } }) {
   const who = `${page.first_name}${page.last_initial ? ` ${page.last_initial}.` : ''}`
+  const path = fund ? `fund/${slug}` : `give/${slug}`
   const [typed, setTyped] = useState('')
   const [name, setName] = useState('')
   const [shy, setShy] = useState(false)
@@ -37,13 +39,13 @@ export function GiveForm({ slug, page }: { slug: string; page: GivingPage }) {
     if (!key.current || key.current.for !== id) key.current = { for: id, key: `web-${crypto.randomUUID()}` }
     setBusy(true); setProblem(null)
     try {
-      setOpened(await call<Opened>(`give/${slug}`, 'POST', { amount_kobo: amount, name, anonymous: shy, note, email, full_name: big ? fullName : '', phone: big ? phone : '' }, { 'Idempotency-Key': key.current.key }))
+      setOpened(await call<Opened>(path, 'POST', { amount_kobo: amount, name, anonymous: shy, note, email, full_name: big ? fullName : '', phone: big ? phone : '' }, { 'Idempotency-Key': key.current.key }))
     } catch (err) { setProblem(words(err)) } finally { setBusy(false) }
   }
 
   if (opened) return (
     <div className="tape"><div className="paper">
-      <div className="ph"><ZomeMark /><b>SEND YOUR GIFT</b><span>FOR {who.toUpperCase()}’S CARE</span></div>
+      <div className="ph"><ZomeMark /><b>SEND YOUR GIFT</b><span>{fund ? fund.title.toUpperCase() : `FOR ${who.toUpperCase()}’S CARE`}</span></div>
       <div className="dash" />
       <p className="give-big"><span className="lbl">Send exactly</span><b>{naira(opened.total_kobo)}</b></p>
       <dl className="kv">
@@ -53,7 +55,7 @@ export function GiveForm({ slug, page }: { slug: string; page: GivingPage }) {
         <div><dt>Name</dt><dd>{opened.account_name}</dd></div>
         {opened.fee_kobo > 0 && <div><dt>Includes bank fee</dt><dd>{naira(opened.fee_kobo)}</dd></div>}
       </dl>
-      <p className="give-note">From any bank app, one transfer, until {lagos(opened.expires_at)}. {who} sees it as soon as it arrives.</p>
+      <p className="give-note">From any bank app, one transfer, until {lagos(opened.expires_at)}. {fund ? 'It shows on the fund’s page as soon as it arrives.' : `${who} sees it as soon as it arrives.`}</p>
       <div className="bars" aria-hidden="true" />
       <p className="pf">FOR CARE ONLY · ZOME</p>
     </div></div>
@@ -61,7 +63,7 @@ export function GiveForm({ slug, page }: { slug: string; page: GivingPage }) {
 
   return (
     <form className="tape" onSubmit={give}><div className="paper">
-      <div className="ph"><ZomeMark /><b>A GIFT FOR {who.toUpperCase()}</b><span>TO THEIR CARE PURSE</span></div>
+      <div className="ph"><ZomeMark /><b>{fund ? 'GIVE TO THIS FUND' : `A GIFT FOR ${who.toUpperCase()}`}</b><span>{fund ? 'HELD FOR CARE' : 'TO THEIR CARE PURSE'}</span></div>
       <div className="dash" />
       <label className="sr" htmlFor="g-amount">Amount</label>
       <div className="amt"><span>₦</span>
@@ -88,7 +90,7 @@ export function GiveForm({ slug, page }: { slug: string; page: GivingPage }) {
         )}
       </div>
       <div className="dash" />
-      <p className="give-note">This money is for {page.first_name}’s care: clinics, pharmacies and labs. It can’t be taken out as cash.</p>
+      <p className="give-note">{fund ? 'This money is held for care and paid only to clinics, pharmacies and labs. Every payment shows on this page.' : `This money is for ${page.first_name}’s care: clinics, pharmacies and labs. It can’t be taken out as cash.`}</p>
       {problem && <p className="err" role="alert">{problem}</p>}
       <button type="submit" className="btn wide lg give-go" disabled={busy || !amount || !name.trim() || !email.includes('@')}>{busy ? 'Setting up…' : amount ? `Give ${naira(amount, true)}` : 'Give'}</button>
       <div className="bars" aria-hidden="true" />

@@ -7,7 +7,7 @@ import { SESSION_COOKIE } from './lib/session'
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const signedIn = request.cookies.has(SESSION_COOKIE)
-  if (!signedIn && !pathname.startsWith('/sign-in') && !pathname.startsWith('/sign-up') && !pathname.startsWith('/api/') && !pathname.startsWith('/unavailable') && !pathname.startsWith('/give/')) {
+  if (!signedIn && !pathname.startsWith('/sign-in') && !pathname.startsWith('/sign-up') && !pathname.startsWith('/api/') && !pathname.startsWith('/unavailable') && !pathname.startsWith('/give/') && !pathname.startsWith('/fund/')) {
     return NextResponse.redirect(new URL('/sign-in', request.url))
   }
 

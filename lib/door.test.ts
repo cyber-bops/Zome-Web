@@ -13,6 +13,20 @@ test('only the listed routes pass the door', () => {
   assert.equal(isAllowed('DELETE', 'me'), false, 'closing an account is not on the web yet')
 })
 
+test('Care Fund: the organiser’s routes, and the public page without a session', () => {
+  const f = '0b6f2c1e-1a2b-4c3d-8e9f-001122334455'
+  assert.equal(isAllowed('GET', 'me/care-fund'), true)
+  assert.equal(isAllowed('PATCH', `me/care-fund/${f}`), true)
+  assert.equal(isAllowed('POST', `me/care-fund/${f}/close`), true)
+  assert.equal(isAllowed('POST', `me/care-fund/${f}/pay/${f}`), true)
+  assert.equal(isAllowed('DELETE', `me/care-fund/${f}`), false)
+  assert.equal(isAllowed('GET', 'fund/ada-care-x9k2mp'), true)
+  assert.equal(sessionless('fund/ada-care-x9k2mp'), true)
+  assert.deepEqual(passedHeaders('fund/ada-care-x9k2mp', new Headers({ 'Idempotency-Key': 'web-1' })), { 'Idempotency-Key': 'web-1' })
+  assert.deepEqual(passedHeaders(`me/care-fund/${f}/pay/${f}`, new Headers({ 'Idempotency-Key': 'web-2' })), { 'Idempotency-Key': 'web-2' })
+  assert.deepEqual(passedHeaders('fund/ada-care-x9k2mp/report', new Headers({ 'Idempotency-Key': 'web-3' })), {})
+})
+
 test('the code, the password and Google are the ways in', () => {
   assert.equal(signsIn('auth/verify'), true)
   assert.equal(signsIn('auth/sign-in'), true)

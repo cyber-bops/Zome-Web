@@ -74,4 +74,4 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   }
 }
 
-export { forward as GET, forward as POST, forward as PUT, forward as DELETE }
+export { forward as GET, forward as POST, forward as PUT, forward as PATCH, forward as DELETE }

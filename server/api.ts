@@ -154,3 +154,24 @@ export async function giftLink(): Promise<GiftLink | null> {
     throw e
   }
 }
+
+// Care Fund (ADR-0054).
+export type CareFund = {
+  id: string; slug: string; title: string; story: string; goal_kobo: number; patient_first_name?: string
+  opened_at: string; ends_at: string; extended: boolean; closed_at?: string; frozen: boolean; taking_gifts: boolean
+  raised_kobo: number; paid_out_kobo: number; balance_kobo: number; gifts: number
+}
+export type FundGift = { name: string; amount_kobo: number; note?: string; at: string }
+export type FundPayment = { provider: string; amount_kobo: number; at: string }
+export type FundUpdate = { body: string; at: string }
+export type MyCareFund = { fund: CareFund | null; may_start: boolean; gifts?: FundGift[]; payments?: FundPayment[]; updates?: FundUpdate[] }
+
+/** The person's Care Fund; null when Care Fund is off. */
+export async function myCareFund(): Promise<MyCareFund | null> {
+  try {
+    return await api<MyCareFund>('/v1/me/care-fund')
+  } catch (e) {
+    if (e instanceof APIError) return null
+    throw e
+  }
+}

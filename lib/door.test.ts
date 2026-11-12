@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { bodyLimit, isAllowed, passedHeaders, passedQuery, signsIn } from './door.ts'
+import { bodyLimit, isAllowed, passedHeaders, passedQuery, sessionless, signsIn } from './door.ts'
 
 test('only the listed routes pass the door', () => {
   assert.equal(isAllowed('POST', 'auth/sign-in'), true)
@@ -74,4 +74,13 @@ test('a linked account: one-tap funding is keyed, unlinking is a DELETE of the c
   assert.equal(isAllowed('DELETE', 'vault/mandates/current'), true)
   assert.equal(isAllowed('DELETE', 'vault/mandates/abc'), false)
   assert.equal(isAllowed('PUT', 'vault/schedule'), true)
+})
+
+test('the giving page needs no session and carries its key; the person’s link needs theirs', () => {
+  assert.equal(isAllowed('GET', 'give/ada-k7m2qx'), true)
+  assert.equal(isAllowed('POST', 'give/ada-k7m2qx'), true)
+  assert.equal(isAllowed('GET', 'give/../vault'), false)
+  assert.equal(sessionless('give/ada-k7m2qx'), true)
+  assert.equal(sessionless('me/gift-link'), false)
+  assert.deepEqual(passedHeaders('give/ada-k7m2qx', new Headers({ 'Idempotency-Key': 'web-3' })), { 'Idempotency-Key': 'web-3' })
 })

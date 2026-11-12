@@ -17,3 +17,9 @@ test('only bills paid and benefits carry a stamp', () => {
   assert.deepEqual(movementStamp({ kind: 'team' }), { word: 'BENEFIT', tone: 'green' })
   assert.equal(movementStamp({ kind: 'top_up' }), null)
 })
+
+test('a gift says who gave it, unless they asked not to', () => {
+  assert.equal(movementTitle({ kind: 'gift', amount_kobo: 100, from: 'Chidi' }), 'From Chidi')
+  assert.equal(movementTitle({ kind: 'gift', amount_kobo: 100, from: 'Anonymous' }), 'A gift')
+  assert.deepEqual(movementStamp({ kind: 'gift' }), { word: 'GIFT', tone: 'green' })
+})

@@ -7,6 +7,12 @@ const allowed: Array<[string, RegExp]> = [
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
+  // The family link: the person's own, and the giving page anyone may open (ADR-0053 §6).
+  ['GET', /^me\/gift-link$/],
+  ['POST', /^me\/gift-link$/],
+  ['DELETE', /^me\/gift-link$/],
+  ['GET', /^give\/[a-z0-9-]{6,40}$/],
+  ['POST', /^give\/[a-z0-9-]{6,40}$/],
   ['POST', /^me\/bvn$/],
   ['POST', /^me\/bvn\/confirm$/],
   ['POST', /^me\/nin$/],
@@ -50,10 +56,10 @@ export function isAllowed(method: string, path: string): boolean {
 export const signsIn = (path: string) => path === 'auth/verify' || path === 'auth/sign-in'
 
 /** Routes that need no session at all. */
-export const sessionless = (path: string) => path === 'auth/start' || signsIn(path)
+export const sessionless = (path: string) => path === 'auth/start' || path.startsWith('give/') || signsIn(path)
 
 /** Anything that moves money carries an Idempotency-Key, so a retry never pays twice. */
-const keyed = (path: string) => path === 'vault/top-ups' || path === 'vault/transfers' || path === 'vault/debits' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
+const keyed = (path: string) => path === 'vault/top-ups' || path.startsWith('give/') || path === 'vault/transfers' || path === 'vault/debits' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
 
 /** The one header passed on from the browser: the Idempotency-Key of a payment. */
 export function passedHeaders(path: string, given: Headers): Record<string, string> {

@@ -152,7 +152,7 @@ export function PurseView({ purse, name, first, openFund, checklist }: { purse: 
         <Tape movements={purse.movements} balance={purse.balance_kobo} name={name} filter={filter} />
       </div>
 
-      {sheet === 'fund' && <FundSheet onClose={close} onVerify={() => { setStepId('bvn'); setSheet('step') }} linked={purse.linked_account} onDone={say} />}
+      {sheet === 'fund' && <FundSheet onClose={close} onVerify={() => { setStepId('bvn'); setSheet('step') }} onLink={() => { setStepId('bank_account'); setSheet('step') }} linked={purse.linked_account} onDone={say} />}
       {sheet === 'step' && <SetupSheet step={stepId} onClose={close} onDone={say} />}
       {sheet === 'pay' && <PaySheet balance={purse.balance_kobo} onClose={close} onPaid={say} />}
       {bill && !sheet && <BillSheet bill={bill} onClose={() => { setBill(null); lookForBills() }} onDone={t => { setBills(bs => bs.filter(b => b.id !== bill.id)); say(t) }} />}

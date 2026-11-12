@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
 import type { Mandate, Purse } from '@/server/api'
@@ -131,36 +131,6 @@ export function SaveSheet({ purse, onClose, onDone }: { purse: Purse; onClose: (
       {limit > 0 && <p className="small">Up to {naira(limit)} each time, the limit your bank approved.</p>}
       {problem && <p className="err" role="alert">{problem}</p>}
     </Sheet>
-  )
-}
-
-/** One tap: debit the linked account now, with the fee shown first. */
-export function OneTap({ m, amount, onDone }: { m: Mandate; amount: number; onDone: (t: string) => void }) {
-  const router = useRouter()
-  const [quote, setQuote] = useState<{ fee_kobo: number; total_kobo: number } | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [problem, setProblem] = useState<string | null>(null)
-  const key = useRef<{ for: number; key: string } | null>(null)
-  useEffect(() => {
-    setQuote(null)
-    if (amount < 10000) return
-    const t = setTimeout(() => call<{ fee_kobo: number; total_kobo: number }>('vault/debits/quote', 'POST', { amount_kobo: amount }).then(setQuote, e => setProblem(words(e))), 250)
-    return () => clearTimeout(t)
-  }, [amount])
-  const go = async () => {
-    if (!key.current || key.current.for !== amount) key.current = { for: amount, key: `web-${crypto.randomUUID()}` }
-    setBusy(true); setProblem(null)
-    try { await call('vault/debits', 'POST', { amount_kobo: amount }, { 'Idempotency-Key': key.current.key }); router.refresh(); onDone(`${naira(amount)} on its way from ${m.bank_name}`) }
-    catch (e) { setProblem(words(e)) } finally { setBusy(false) }
-  }
-  return (
-    <div className="onetap">
-      <button type="button" className="btn wide" disabled={busy || amount < 10000} onClick={go}>
-        {busy ? 'Funding…' : `Fund purse now from ${m.bank_name} ··${m.account_number.slice(-4)}`}
-      </button>
-      {quote && <p className="small">{naira(quote.fee_kobo)} fee · {naira(quote.total_kobo)} from your bank</p>}
-      {problem && <p className="err" role="alert">{problem}</p>}
-    </div>
   )
 }
 

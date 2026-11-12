@@ -350,3 +350,14 @@ h1, h2, h3, p { margin: 0; }
 .env-lede { color: var(--ink-2); margin: 6px 0 16px; }
 .envelope .row:first-of-type { border-top: 1.5px dashed var(--rule); }
 .mono.in { color: var(--green); }
+
+/* Add money: the two ways */
+.ways { display: grid; gap: 8px; margin-top: 16px; }
+.way { display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 14px; border-radius: 12px; background: var(--paper); box-shadow: 0 0 0 1px var(--rule) inset; width: 100%; }
+.way[aria-checked="true"] { box-shadow: 0 0 0 2px var(--ink) inset; }
+.way > i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--ink-3); flex: none; margin-top: 2px; }
+.way[aria-checked="true"] > i { border: 5px solid var(--ink); }
+.way b { display: block; font-weight: 600; font-size: 15px; }
+.way .grow > span { display: block; font-size: 13.5px; color: var(--ink-2); margin-top: 2px; }
+.way .fee { color: var(--ink) !important; font-family: var(--f-mono); font-size: 12.5px !important; margin-top: 6px !important; }
+.way em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 5px; padding: 1px 6px; align-self: center; }

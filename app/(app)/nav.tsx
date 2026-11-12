@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-// Find care and Family join these once they work on the web.
+// Find care joins these once it works on the web.
 const pages = [
   { href: '/', label: 'Purse' },
   { href: '/receipts', label: 'Receipts' },
+  { href: '/family', label: 'Family' },
   { href: '/profile', label: 'You' },
 ]
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href))

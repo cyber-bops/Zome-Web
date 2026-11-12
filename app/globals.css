@@ -325,3 +325,28 @@ h1, h2, h3, p { margin: 0; }
 .onetap { margin-top: 16px; padding-top: 14px; border-top: 1.5px dashed var(--rule); }
 .row .b { font-weight: 600; }
 .sheet-paper + .sheet-paper, .wcol > .sheet-paper + .sheet-paper { margin-top: 14px; }
+
+/* ---------- The giving page: a receipt to fill in ---------- */
+.give { min-height: 100dvh; display: grid; grid-template-columns: minmax(0, 440px); justify-content: center; align-content: start; gap: 22px; padding-block: 28px 60px; }
+.give-wm { justify-self: center; }
+.give .tape { width: 100%; max-width: 440px; transform: rotate(-.6deg); }
+.give .tape:hover { transform: rotate(-.2deg); }
+.give .paper { font-family: var(--f-text); font-size: 14.5px; }
+.give .ph b, .give .ph span, .give .pf { font-family: var(--f-mono); }
+.give .amt { margin-top: 8px; }
+.give-fields { display: grid; gap: 6px; margin-top: 18px; }
+.give-fields .label { margin: 10px 0 0; }
+.give-fields .field { height: 44px; font-size: 16px; }
+.check { display: flex; gap: 10px; align-items: center; font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+.check input { width: 18px; height: 18px; accent-color: var(--ink); }
+.give-note { font-size: 13.5px; color: var(--ink-2); margin: 10px 0; }
+.give-go { margin: 6px 0 4px; }
+.give-big { text-align: center; padding: 4px 0 14px; } .give-big b { display: block; font-size: 38px; font-weight: 400; letter-spacing: -.04em; font-family: var(--f-text); }
+.envelope { background: var(--paper) var(--grain); border-radius: 14px; padding: 26px 24px 12px; position: relative; overflow: hidden; box-shadow: 0 1px 2px rgba(21,25,31,.06), 0 16px 34px rgba(21,25,31,.08); }
+.envelope::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: repeating-linear-gradient(135deg, var(--blue) 0 14px, transparent 14px 22px, var(--red) 22px 36px, transparent 36px 44px); }
+.envelope .url { display: flex; align-items: center; gap: 10px; background: var(--key); border-radius: 10px; padding: 12px 14px; margin: 12px 0 14px; font-size: 14px; }
+.envelope .url span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.env-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.env-lede { color: var(--ink-2); margin: 6px 0 16px; }
+.envelope .row:first-of-type { border-top: 1.5px dashed var(--rule); }
+.mono.in { color: var(--green); }

@@ -142,3 +142,15 @@ export async function checklist(): Promise<Checklist | null> {
     throw e
   }
 }
+
+export type GiftLink = { slug: string; created_at: string }
+
+/** The person's open family link, or null. */
+export async function giftLink(): Promise<GiftLink | null> {
+  try {
+    return await api<GiftLink>('/v1/me/gift-link')
+  } catch (e) {
+    if (e instanceof APIError) return null
+    throw e
+  }
+}

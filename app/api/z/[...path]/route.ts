@@ -12,8 +12,11 @@ import { bodyLimit, isAllowed, passedHeaders, passedQuery, sessionless, signsIn 
 
 function sameOrigin(request: Request): boolean {
   const origin = request.headers.get('origin')
-  const expected = process.env.ZOME_WEB_ORIGIN ?? new URL(request.url).origin
-  return origin === expected
+  if (process.env.ZOME_WEB_ORIGIN) return origin === process.env.ZOME_WEB_ORIGIN
+  // Without a set origin (a preview), this site is the host the request came to.
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+  const proto = request.headers.get('x-forwarded-proto') ?? new URL(request.url).protocol.replace(':', '')
+  return !!origin && !!host && origin === `${proto}://${host}`
 }
 
 async function forward(request: Request, { params }: { params: Promise<{ path: string[] }> }) {

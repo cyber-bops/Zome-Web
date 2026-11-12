@@ -13,9 +13,11 @@ test('only the listed routes pass the door', () => {
   assert.equal(isAllowed('DELETE', 'me'), false, 'closing an account is not on the web yet')
 })
 
-test('the code and the password are the two ways in', () => {
+test('the code, the password and Google are the ways in', () => {
   assert.equal(signsIn('auth/verify'), true)
   assert.equal(signsIn('auth/sign-in'), true)
+  assert.equal(signsIn('auth/provider'), true)
+  assert.equal(isAllowed('POST', 'auth/provider'), true)
   assert.equal(signsIn('auth/start'), false)
 })
 

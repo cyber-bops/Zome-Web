@@ -361,3 +361,7 @@ h1, h2, h3, p { margin: 0; }
 .way .grow > span { display: block; font-size: 13.5px; color: var(--ink-2); margin-top: 2px; }
 .way .fee { color: var(--ink) !important; font-family: var(--f-mono); font-size: 12.5px !important; margin-top: 6px !important; }
 .way em { font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 5px; padding: 1px 6px; align-self: center; }
+
+/* Log in: Forgot password? and Continue with Google */
+.forgot { margin: -6px 0 14px; text-align: right; font-size: 14px; }
+.g-btn { display: flex; align-items: center; justify-content: center; gap: 10px; }

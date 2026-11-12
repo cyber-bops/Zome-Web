@@ -3,7 +3,7 @@
 
 const id = '[0-9a-f-]{36}'
 const allowed: Array<[string, RegExp]> = [
-  ['POST', /^auth\/(start|verify|sign-in|sign-out|sign-out-all|password)$/],
+  ['POST', /^auth\/(start|verify|provider|sign-in|sign-out|sign-out-all|password)$/],
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
@@ -53,7 +53,7 @@ export function isAllowed(method: string, path: string): boolean {
 }
 
 /** Routes that sign someone in: they answer with a session, which becomes the cookie. */
-export const signsIn = (path: string) => path === 'auth/verify' || path === 'auth/sign-in'
+export const signsIn = (path: string) => path === 'auth/verify' || path === 'auth/sign-in' || path === 'auth/provider'
 
 /** Routes that need no session at all. */
 export const sessionless = (path: string) => path === 'auth/start' || path.startsWith('give/') || signsIn(path)

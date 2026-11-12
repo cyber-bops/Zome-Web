@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { api, APIError } from '@/server/api'
-import { SESSION_COOKIE, SESSION_COOKIE_OPTIONS, sessionCookieAge } from '@/lib/session'
+import { DEVICE_COOKIE, DEVICE_COOKIE_OPTIONS, deviceKey, SESSION_COOKIE, SESSION_COOKIE_OPTIONS, sessionCookieAge } from '@/lib/session'
 import { bodyLimit, isAllowed, passedHeaders, passedQuery, sessionless, signsIn } from '@/lib/door'
 
 // The browser's one door to the API: /api/z/<path> forwards to /v1/<path>,
@@ -40,6 +40,13 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
     }
   }
   const jar = await cookies()
+  // A sign-in says which browser it comes from (ADR-0055): the key from the
+  // HttpOnly cookie, never one the page sent.
+  if (signsIn(path) && body && typeof body === 'object' && !Array.isArray(body)) {
+    const key = deviceKey(jar.get(DEVICE_COOKIE)?.value)
+    jar.set(DEVICE_COOKIE, key, DEVICE_COOKIE_OPTIONS)
+    body = { ...(body as Record<string, unknown>), device_key: key }
+  }
   try {
     const data = await api<Record<string, unknown> | null>(`/v1/${path}${passedQuery(path, new URL(request.url).searchParams)}`, {
       method: request.method,

@@ -11,7 +11,8 @@ import { ZomeMark } from './mark'
 
 // Signing in and creating an account, as the iOS app does them (SignInModel,
 // SignUpSheet): an email code to create an account and then a password; the
-// password to log in; Forgot password? proves the address with an email code
+// password to log in (and, on a browser new to the account, the email code
+// too: ADR-0055); Forgot password? proves the address with an email code
 // and sets a new one; Continue with Google sends Google's ID token to the same
 // /v1/auth/provider the apps use. Welcome back for whoever signed in last on
 // this browser (ADR-0052 §7, ADR-0053 §4).
@@ -48,6 +49,8 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
   const [resetting, setResetting] = useState(false)
   // Signed up with Google: no password to set, only the name, if Google gave none.
   const [viaGoogle, setViaGoogle] = useState(false)
+  // The password was right, but this browser is new to the account (ADR-0055).
+  const [newBrowser, setNewBrowser] = useState(false)
 
   useEffect(() => {
     if (mode !== 'log-in') return
@@ -85,7 +88,13 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
   const logIn = (e: React.FormEvent) => {
     e.preventDefault()
     run(async () => {
-      await call('auth/sign-in', 'POST', { email: email.trim(), password, device: device() })
+      try {
+        await call('auth/sign-in', 'POST', { email: email.trim(), password, device: device() })
+      } catch (err) {
+        if (!(err instanceof Refused && err.type === 'NewDevice')) throw err
+        setPassword(''); setCode(''); setResetting(false); setNewBrowser(true); setStep('code')
+        return
+      }
       setPassword('')
       await arrive(known?.firstName)
     })
@@ -253,8 +262,8 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
 
           {step === 'code' && (
             <form onSubmit={verify}>
-              <h1 className="auth-title">{resetting ? 'Reset your password' : 'We sent you a code'}</h1>
-              <p className="auth-sub">Please enter the {CODE}-digit code we sent to <strong>{email.trim()}</strong>.</p>
+              <h1 className="auth-title">{resetting ? 'Reset your password' : newBrowser ? 'Is this you?' : 'We sent you a code'}</h1>
+              <p className="auth-sub">{newBrowser ? 'This browser is new to your account. To finish logging in, enter' : 'Please enter'} the {CODE}-digit code we sent to <strong>{email.trim()}</strong>.</p>
               <div className="field-row">
                 <label className="sr" htmlFor="code">Verification code</label>
                 <div className="code-boxes">
@@ -270,7 +279,7 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
               <p className="auth-alt">
                 <button type="button" className="link-btn" disabled={busy} onClick={() => sendCode()}>Resend code</button>
                 {' · '}
-                <button type="button" className="link-btn" onClick={() => { setProblem(null); setResetting(false); setStep('choose') }}>Back</button>
+                <button type="button" className="link-btn" onClick={() => { setProblem(null); setResetting(false); setNewBrowser(false); setStep('choose') }}>Back</button>
               </p>
             </form>
           )}

@@ -24,3 +24,21 @@ export function sessionCookieAge(expiresAt: unknown, now = Date.now()): number {
   if (Number.isNaN(ends)) return SESSION_COOKIE_OPTIONS.maxAge
   return Math.max(0, Math.min(SESSION_COOKIE_OPTIONS.maxAge, Math.floor((ends - now) / 1000)))
 }
+
+// The browser's device key (ADR-0055): a random value that says "this
+// browser" to the API, so a password alone works only where the account has
+// signed in with an email code or Google before. HttpOnly like the session, so
+// the page's own script can't read it; it outlives signing out, as the
+// browser does. The door adds it to sign-in requests (app/api/z).
+export const DEVICE_COOKIE =
+  process.env.NODE_ENV === 'production' ? '__Host-zome_device' : 'zome_device'
+
+export const DEVICE_COOKIE_OPTIONS = { ...SESSION_COOKIE_OPTIONS, maxAge: 400 * 24 * 60 * 60 }
+
+const KEY_SHAPE = /^[A-Za-z0-9_-]{32,128}$/
+
+/** The browser's key if it has a good one, or a fresh one (32 random bytes). */
+export function deviceKey(existing: string | undefined): string {
+  if (existing && KEY_SHAPE.test(existing)) return existing
+  return Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('base64url')
+}

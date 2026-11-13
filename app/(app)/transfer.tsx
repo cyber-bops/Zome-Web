@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Amount } from '../amount'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
@@ -110,12 +111,7 @@ export function TransferFlow({ balance, onClose, onPaid, onBack }: { balance: nu
   if (step === 'amount' && bank && name) return (
     <Sheet eyebrow={`${bank.name} ··${number.slice(-4)}`} title={name} onClose={onClose}
       foot={<><button type="button" className="btn soft" onClick={() => { setProblem(null); setStep('account') }}>Back</button><button type="button" className="btn" disabled={!amount} onClick={toPin}>Confirm & Pay</button></>}>
-      <label className="sr" htmlFor="tr-amount">Amount</label>
-      <div className="amt"><span>₦</span>
-        <input id="tr-amount" inputMode="numeric" autoComplete="off" placeholder="0" autoFocus value={typed ? Number(typed).toLocaleString('en-NG') : ''}
-          onChange={e => { setProblem(null); const d = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''); if (Number(d || 0) <= 5_000_000) setTyped(d) }}
-          onKeyDown={e => { if (e.key === 'Enter') toPin() }} />
-      </div>
+      <Amount id="tr-amount" digits={typed} onDigits={d => { setProblem(null); setTyped(d) }} onEnter={toPin} pad autoFocus />
       <label className="label top-gap" htmlFor="tr-note">What it’s for (optional)</label>
       <input id="tr-note" className="field" maxLength={140} value={note} onChange={e => setNote(e.target.value)} placeholder="Hospital bill, scan…" />
       <dl className="kv top-gap">

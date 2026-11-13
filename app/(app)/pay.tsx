@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Amount } from '../amount'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
@@ -103,12 +104,7 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
   if (step === 'amount' && to) return (
     <Sheet eyebrow={fund ? 'Pay from the fund' : 'Pay a bill'} title={to.name} lede={to.address || to.category} onClose={onClose}
       foot={<><button type="button" className="btn soft" onClick={() => { setProblem(null); setStep('find') }}>Back</button><button type="button" className="btn" disabled={!amount} onClick={toAmount}>Confirm & Pay</button></>}>
-      <label className="sr" htmlFor="pay-amount">Amount</label>
-      <div className="amt"><span>₦</span>
-        <input id="pay-amount" inputMode="numeric" autoComplete="off" placeholder="0" autoFocus value={typed ? Number(typed).toLocaleString('en-NG') : ''}
-          onChange={e => { setProblem(null); const d = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''); if (Number(d || 0) <= 5_000_000) setTyped(d) }}
-          onKeyDown={e => { if (e.key === 'Enter') toAmount() }} />
-      </div>
+      <Amount id="pay-amount" digits={typed} onDigits={d => { setProblem(null); setTyped(d) }} onEnter={toAmount} pad autoFocus />
       <label className="label top-gap" htmlFor="pay-note">What it’s for (optional)</label>
       <input id="pay-note" className="field" maxLength={80} value={note} onChange={e => setNote(e.target.value)} placeholder="Consultation, prescription…" />
       <p className="small">{naira(balance)} in {from}.</p>

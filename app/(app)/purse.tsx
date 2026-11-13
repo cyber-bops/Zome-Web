@@ -13,6 +13,8 @@ import { onTheWeb, SetupSheet } from './setup'
 import { FundSheet } from './fund'
 import { PaySheet } from './pay'
 import { Tape, type Filter } from './tape'
+import { HangingTicket } from './ticket'
+import { Sheet } from './sheet'
 
 // The purse, in soft tiles: a greeting and the balance, three keys (A, P, C
 // on a keyboard), the month's spending, family gifts and the pay-code ticket,
@@ -41,6 +43,28 @@ function Ticket({ code, onNew, busy }: { code: Code | null; onNew: () => void; b
   )
 }
 
+/** The pay code as a ticket: printed in, its five minutes as a line, a live countdown. */
+function CodeSheet({ code, holder, onClose }: { code: Code; holder: string; onClose: () => void }) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t) }, [])
+  const total = 300
+  const left = Math.max(0, Math.round((Date.parse(code.expires_at) - now) / 1000))
+  const clock = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+  return (
+    <Sheet eyebrow="Pay code" title="Show this at the counter" onClose={onClose}
+      foot={<button type="button" className="btn span" onClick={onClose}>Done</button>}>
+      <HangingTicket eyebrow="PAY CODE" headline={`${code.code.slice(0, 3)} ${code.code.slice(3)}`} print
+        fields={[['Holder', holder], ['Valid', '5 min']]} reference={new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: zone }).format(new Date())}
+        extra={
+          <svg className={`life${left < 60 ? ' late' : ''}`} viewBox={`0 0 ${total} 4`} preserveAspectRatio="none" aria-hidden="true">
+            <rect className="track" width={total} height="4" rx="2" /><rect className="left" width={Math.min(total, left)} height="4" rx="2" />
+          </svg>
+        }
+        below={<p className="clock-chip" role="timer" aria-live="off">{left > 0 ? clock : 'Expired'}</p>} />
+    </Sheet>
+  )
+}
+
 /** The month's running spend, drawn into a 150 × 56 box. */
 function Spark({ line }: { line: number[] }) {
   const top = Math.max(1, ...line)
@@ -66,6 +90,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
   const [bills, setBills] = useState<Bill[]>([])
   const [bill, setBill] = useState<Bill | null>(null)
   const [hidden, setHidden] = useState(false)
+  const [codeOpen, setCodeOpen] = useState(false)
 
   // Bills sent to the pay code: looked for on arrival, and every few seconds
   // while a code is live, so a bill shows the moment the counter sends it.
@@ -87,7 +112,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
     const fresh = bills.find(b => !seen.current.has(b.id))
     bills.forEach(b => seen.current.add(b.id))
     // A code takes one bill (ADR-0029): once one comes, the ticket is spent.
-    if (fresh && live) { setCode(null); if (!sheet) setBill(fresh) }
+    if (fresh && live) { setCode(null); setCodeOpen(false); if (!sheet) setBill(fresh) }
   }, [bills, live, sheet])
   useEffect(() => { if (openFund) setSheet('fund') }, [openFund])
   const close = useCallback(() => { setSheet(null); if (location.search.includes('fund')) history.replaceState(null, '', '/') }, [])
@@ -97,7 +122,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
     setBusy(true)
     try {
       const c = await call<Code>('vault/pay-codes', 'POST', {})
-      setCode(c); say('Show this code at the counter')
+      setCode(c); setCodeOpen(true)
     } catch (e) {
       say(e instanceof Refused ? e.message : 'Couldn’t make a code. Try again.')
     } finally { setBusy(false) }
@@ -172,7 +197,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
             <span className="t">From family</span>
             <span className="num">{naira(given, true)}</span>
           </Link>
-          <Ticket code={code} onNew={newCode} busy={busy} />
+          <Ticket code={code} onNew={() => (code && Date.parse(code.expires_at) > Date.now() ? setCodeOpen(true) : newCode())} busy={busy} />
         </div>
 
         {next && (onTheWeb.has(next.id)
@@ -196,6 +221,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
       {sheet === 'step' && <SetupSheet step={stepId} onClose={close} onDone={say} />}
       {sheet === 'pay' && <PaySheet balance={purse.balance_kobo} onClose={close} onPaid={say} />}
       {bill && !sheet && <BillSheet bill={bill} onClose={() => { setBill(null); lookForBills() }} onDone={t => { setBills(bs => bs.filter(b => b.id !== bill.id)); say(t) }} />}
+      {codeOpen && code && !bill && <CodeSheet code={code} holder={first || name.split(/\s+/)[0] || 'You'} onClose={() => setCodeOpen(false)} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   )

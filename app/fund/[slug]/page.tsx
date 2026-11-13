@@ -51,15 +51,15 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
           <h1 className="fund-h">{p.title}</h1>
           <p className="fund-by">{p.patient_first_name ? <>For <b>{p.patient_first_name}</b>, started by <b>{who}</b></> : <>For <b>{who}</b>’s own care</>} · {day(p.opened_at)}</p>
           <section className="fund-total">
-            <p><b className="mono">{naira(p.raised_kobo)}</b> <span>raised of {naira(p.goal_kobo)}</span></p>
+            <p><b>{naira(p.raised_kobo, true)}</b> <span>raised of {naira(p.goal_kobo, true)}</span></p>
             <div className="meter" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Raised so far"><i className={`w${Math.round(pct / 5) * 5}`} /></div>
             <p className="fund-facts"><span>{p.gifts} {p.gifts === 1 ? 'gift' : 'gifts'}</span>
-              <span>{naira(p.paid_out_kobo)} paid to providers</span>
+              <span>{naira(p.paid_out_kobo, true)} paid out</span>
               <span>{p.frozen ? 'Paused' : p.closed ? 'Closed' : left > 0 ? `${left} ${left === 1 ? 'day' : 'days'} left` : 'Ended'}</span></p>
           </section>
           {p.taking_gifts && <a className="btn wide lg fund-jump" href="#give">Give to this fund</a>}
           <section className="fund-promise">
-            <b>Held for care.</b> Money given here is paid only to hospitals, clinics, pharmacies and labs, never to a person. Every payment shows below.
+            <b>Held for care.</b> Paid only to hospitals, clinics, pharmacies and labs. Every payment shows below.
           </section>
           <div className="fund-text">{p.story.split(/\n+/).map((para, i) => <p key={i}>{para}</p>)}</div>
 

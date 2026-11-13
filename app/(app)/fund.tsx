@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Amount } from '../amount'
 import { useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
@@ -109,10 +110,10 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
     </Sheet>
   )
 
-  const debitLine = live ? `${linked!.bank_name} ··${linked!.account_number.slice(-4)}, by direct debit`
-    : waiting ? 'Your bank is approving the link. This can take up to 3 days.'
-    : paused ? 'Paused by your bank.'
-    : 'Link your bank account, then add money in one tap.'
+  const debitLine = live ? `${linked!.bank_name} ··${linked!.account_number.slice(-4)}`
+    : waiting ? 'Your bank is approving the link'
+    : paused ? 'Paused by your bank'
+    : 'Link it first'
   const goWord = busy ? (way === 'debit' ? 'Adding…' : 'Setting up…')
     : way === 'debit' && !live ? (waiting || paused ? 'Waiting for your bank' : 'Link your bank account')
     : way === 'debit' ? (amount ? `Add ${naira(amount * 100, true)} now` : 'Add money') : 'Continue'
@@ -123,12 +124,7 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
         <button type="button" className="btn soft" onClick={onClose}>Cancel</button>
         <button type="button" className="btn" disabled={busy || (way === 'debit' ? (live ? amount === 0 : !!(waiting || paused)) : amount === 0)} onClick={go}>{goWord}</button>
       </>}>
-      <label className="sr" htmlFor="amount">Amount</label>
-      <div className="amt">
-        <span>₦</span>
-        <input id="amount" inputMode="numeric" autoComplete="off" placeholder="0" autoFocus value={amount ? amount.toLocaleString('en-NG') : ''}
-          onChange={e => set(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); go() } }} />
-      </div>
+      <Amount id="amount" digits={typed} onDigits={set} onEnter={go} max={MAX_NAIRA} pad autoFocus />
       <div className="quick">
         {QUICK.map(n => <button key={n} type="button" aria-pressed={amount === n} onClick={() => set(String(n))}>₦{n.toLocaleString('en-NG')}</button>)}
       </div>
@@ -139,7 +135,7 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
           {live && <em>One tap</em>}
         </button>
         <button type="button" role="radio" aria-checked={way === 'transfer'} className="way" onClick={() => { setProblem(null); setWay('transfer') }}>
-          <i aria-hidden="true" /><span className="grow"><b>Bank transfer</b><span>From any bank app, to a one-time account.</span></span>
+          <i aria-hidden="true" /><span className="grow"><b>Bank transfer</b><span>From any bank app</span></span>
         </button>
       </div>
       {problem && <p className="err" role="alert">{problem}</p>}

@@ -618,3 +618,38 @@ body { background: #FFFFFF; }
 .card .btn.soft, .sheet-paper .btn.soft, .card .btn.danger { background: #FFFFFF; box-shadow: 0 1px 2px rgba(17,19,24,.06); }
 .fund-mine b { font-family: var(--f-text); font-weight: 400; font-size: 26px; letter-spacing: -0.035em; }
 .env-h { font-size: 18px; letter-spacing: -0.02em; }
+
+/* The amount: it steps down in size as it grows, so it stays on one line */
+.amt { border-bottom: 0; padding-bottom: 0; align-items: center; }
+.amt span { font-size: 26px; transition: font-size .18s ease; }
+.amt input { font-size: 46px; font-weight: 400; letter-spacing: -0.035em; transition: font-size .18s ease; color: var(--ink); }
+.amt.fit-1 input { font-size: 40px; } .amt.fit-1 span { font-size: 23px; }
+.amt.fit-2 input { font-size: 34px; } .amt.fit-2 span { font-size: 20px; }
+.amt.fit-3 input { font-size: 28px; } .amt.fit-3 span { font-size: 18px; }
+.amt input::placeholder { color: var(--ink-3); }
+/* The number pad, on phones */
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px -6px 0; }
+.numpad button { height: 56px; border-radius: 16px; font-size: 24px; font-weight: 400; display: grid; place-items: center; color: var(--ink); }
+.numpad button:active { background: var(--tile); }
+.numpad svg { width: 26px; height: 22px; }
+.quick button { border-radius: 99px; box-shadow: none; background: var(--tile); }
+.tk .tk-art b.code-print { font-family: var(--f-mono); font-weight: 500; font-size: 26px; letter-spacing: .12em; max-width: none; min-height: 26px; }
+.tk .life { margin-top: 10px; }
+.clock-chip { margin: 16px auto 0; width: max-content; font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; background: var(--ink); color: #fff; border-radius: 6px; padding: 4px 9px; }
+
+/* Add money's two ways: one grouped block, short words */
+.ways { background: var(--tile); border-radius: 18px; gap: 0; overflow: hidden; }
+.way { background: none; box-shadow: none; border-radius: 0; padding: 14px; }
+.way + .way { border-top: 1px solid var(--rule); }
+.way[aria-checked="true"] { box-shadow: none; }
+.way > i { border-color: var(--ink-3); }
+.way[aria-checked="true"] > i { border: 6px solid var(--blue); }
+.way b { font-size: 14px; }
+.way .grow > span { font-size: 12.5px; color: var(--ink-3); }
+
+/* The public fund page: the dashboards' figures, a quiet promise */
+.fund-total b { font-family: var(--f-text); font-weight: 600; font-size: 30px; letter-spacing: -0.035em; }
+.fund-promise { background: var(--tile); font-size: 14px; }
+.fund-story { box-shadow: none; padding-inline: 0; background: none; }
+.fund-h { font-weight: 600; letter-spacing: -0.03em; }
+.fund-list .mono { font-family: var(--f-text); font-weight: 600; }

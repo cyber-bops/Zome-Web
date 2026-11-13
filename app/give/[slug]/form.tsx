@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { Amount } from '../../amount'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
 import { ZomeMark } from '../../mark'
@@ -65,11 +66,7 @@ export function GiveForm({ slug, page, fund }: { slug: string; page: GivingPage;
     <form className="tape" onSubmit={give}><div className="paper">
       <div className="ph"><ZomeMark /><b>{fund ? 'GIVE TO THIS FUND' : `A GIFT FOR ${who.toUpperCase()}`}</b><span>{fund ? 'HELD FOR CARE' : 'TO THEIR CARE PURSE'}</span></div>
       <div className="dash" />
-      <label className="sr" htmlFor="g-amount">Amount</label>
-      <div className="amt"><span>₦</span>
-        <input id="g-amount" inputMode="numeric" autoComplete="off" placeholder="0" value={typed ? Number(typed).toLocaleString('en-NG') : ''}
-          onChange={e => { setProblem(null); setTyped(e.target.value.replace(/\D/g, '').slice(0, 7)) }} />
-      </div>
+      <Amount id="g-amount" digits={typed} onDigits={d => { setProblem(null); setTyped(d) }} max={9_999_999} />
       <div className="quick">{QUICK.map(n => <button key={n} type="button" aria-pressed={amount === n * 100} onClick={() => setTyped(String(n))}>₦{n.toLocaleString('en-NG')}</button>)}</div>
       <div className="give-fields">
         <label className="label" htmlFor="g-name">Your name</label>

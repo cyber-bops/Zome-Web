@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { Amount } from '../../amount'
 import { useState } from 'react'
 import Link from 'next/link'
 import { call, Refused } from '@/lib/client'
@@ -112,8 +113,7 @@ function StartSheet({ onClose, onDone }: { onClose: () => void; onDone: (t: stri
       <label className="label" htmlFor="cf-title">What it’s for</label>
       <input id="cf-title" className="field" maxLength={80} value={title} onChange={e => setTitle(e.target.value)} placeholder="Mum’s surgery at Lagoon Hospital" autoFocus />
       <label className="label top-gap" htmlFor="cf-goal">Goal</label>
-      <div className="amt"><span>₦</span><input id="cf-goal" inputMode="numeric" placeholder="0" value={goal ? Number(goal).toLocaleString('en-NG') : ''}
-        onChange={e => { const d = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''); if (Number(d || 0) <= 5_000_000) setGoal(d) }} /></div>
+      <Amount id="cf-goal" digits={goal} onDigits={setGoal} label="Goal" />
       <label className="label top-gap" htmlFor="cf-story">The story</label>
       <textarea id="cf-story" className="field" rows={5} maxLength={2000} value={story} onChange={e => setStory(e.target.value)}
         placeholder="Who it’s for, what care they need, and what the money will pay." />
@@ -167,8 +167,7 @@ function EditSheet({ id, title, story, goal, onClose, onDone }: { id: string; ti
       <label className="label" htmlFor="ce-title">What it’s for</label>
       <input id="ce-title" className="field" maxLength={80} value={t} onChange={e => setT(e.target.value)} />
       <label className="label top-gap" htmlFor="ce-goal">Goal</label>
-      <div className="amt"><span>₦</span><input id="ce-goal" inputMode="numeric" value={g ? Number(g).toLocaleString('en-NG') : ''}
-        onChange={e => { const d = e.target.value.replace(/\D/g, '').replace(/^0+(?=\d)/, ''); if (Number(d || 0) <= 5_000_000) setG(d) }} /></div>
+      <Amount id="ce-goal" digits={g} onDigits={setG} label="Goal" />
       <label className="label top-gap" htmlFor="ce-story">The story</label>
       <textarea id="ce-story" className="field" rows={6} maxLength={2000} value={s} onChange={e => setS(e.target.value)} />
       {problem && <p className="err" role="alert">{problem}</p>}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { BankLogo } from '../bank-logo'
 import { useEffect, useMemo, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
@@ -81,7 +82,7 @@ export function LinkSheet({ onClose, onDone }: { onClose: () => void; onDone: (t
           <div className="pick">
             {banks === null ? <p className="none">Loading banks…</p>
               : shown.length === 0 ? (banks.length ? <p className="none">No bank by that name.</p> : null)
-              : shown.map(b => <button key={b.code} type="button" onClick={() => setBank(b)}><span className="pin">{b.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()}</span><span className="grow"><b>{b.name}</b></span></button>)}
+              : shown.map(b => <button key={b.code} type="button" onClick={() => setBank(b)}><BankLogo code={b.code} name={b.name} className="pin" /><span className="grow"><b>{b.name}</b></span></button>)}
           </div>
         </>
       ) : (
@@ -153,7 +154,7 @@ export function BankCard({ purse }: { purse: Purse | null }) {
       <p className="lbl">Bank account</p>
       {live && m ? (
         <>
-          <div className="row"><span><b className="b">{m.bank_name} ··{m.account_number.slice(-4)}</b><span className="mut"> {m.account_name}</span></span><span className="lbl">{linkWord(m)}</span></div>
+          <div className="row"><BankLogo code={m.bank_code} name={m.bank_name} /><span><b className="b">{m.bank_name} ··{m.account_number.slice(-4)}</b><span className="mut"> {m.account_name}</span></span><span className="lbl">{linkWord(m)}</span></div>
           {m.state === 'awaiting_authorisation' && <div className="row"><span>Your bank needs a small transfer to approve the link.</span><button type="button" className="btn small-btn" onClick={() => setOpen('auth')}>See how</button></div>}
           {m.state === 'active' && <div className="row"><span>{purse.schedule ? `Saving ${naira(purse.schedule.amount_kobo)} ${cadenceWord[purse.schedule.cadence].toLowerCase()}` : 'Save automatically'}</span><button type="button" className="btn small-btn" onClick={() => setOpen('save')}>{purse.schedule ? 'Change' : 'Set up'}</button></div>}
           <div className="row"><span>Unlink account</span><button type="button" className="btn danger small-btn" onClick={() => setOpen('unlink')}>Unlink</button></div>

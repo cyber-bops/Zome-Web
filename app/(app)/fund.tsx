@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { BankLogo } from '../bank-logo'
 import { Amount, NumPad, usePhone } from '../amount'
 import { useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
@@ -139,25 +140,20 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
         </div>
         <div className="ps-body">
           <span className="lbl">You add</span>
-          <div className="ps-line">
-            <Amount id="amount" digits={typed} onDigits={set} onEnter={go} max={MAX_NAIRA} padElsewhere autoFocus={!phone} />
-            <button type="button" className="way-chip" onClick={() => setChoosing(true)} aria-haspopup="dialog">
-              <span className={`dot${way === 'debit' ? ' bank' : ''}`} aria-hidden="true">{way === 'debit' ? (linked?.bank_name ?? 'B').slice(0, 2).toUpperCase() : '⇄'}</span>
-              {chip} <span aria-hidden="true">›</span>
-            </button>
-          </div>
-          {amount > 0 && (
-            <div className="cells">
-              <div><span>From</span><b>{way === 'debit' ? debitLine : 'Any bank app'}</b></div>
-              <div><span>Fee</span><b>{fee}</b></div>
-            </div>
-          )}
+          <Amount id="amount" digits={typed} onDigits={set} onEnter={go} max={MAX_NAIRA} padElsewhere autoFocus={!phone} />
+          <p className="ps-note">{amount > 0 && way === 'debit' && quote ? `${naira(quote.fee_kobo)} fee` : '\u00a0'}</p>
           <div className="quick">
             {QUICK.map(n => <button key={n} type="button" aria-pressed={amount === n} onClick={() => set(String(n))}>₦{n.toLocaleString('en-NG')}</button>)}
           </div>
           {problem && <p className="err" role="alert">{problem}</p>}
           {verify && onVerify && <button type="button" className="btn soft top-gap wide" onClick={onVerify}>Add your BVN</button>}
         </div>
+        <button type="button" className="way-bar" onClick={() => setChoosing(true)} aria-haspopup="dialog">
+          {way === 'debit' && linked ? <BankLogo code={linked.bank_code} name={linked.bank_name} /> : <span className="bank-logo" aria-hidden="true">⇄</span>}
+          <span className="grow"><b>{way === 'debit' ? (linked ? `${linked.bank_name} ··${linked.account_number.slice(-4)}` : 'Your bank account') : 'Bank transfer'}</b>
+            <span>{way === 'debit' ? (live ? 'Direct debit' : debitLine) : 'From any bank app'}</span></span>
+          <span className="change">Change</span>
+        </button>
         {phone && <NumPad digits={typed} onDigits={set} max={MAX_NAIRA} />}
         <div className="ps-cta"><button type="button" className="btn lg wide" disabled={off} onClick={go}>{goWord}</button></div>
 
@@ -169,7 +165,7 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
               <h3>Add money from</h3>
               <div className="ways" role="radiogroup" aria-label="How">
                 <button type="button" role="radio" aria-checked={way === 'debit'} className="way" onClick={() => { setProblem(null); setWay('debit') }}>
-                  <i aria-hidden="true" /><span className="grow"><b>{live ? `${linked!.bank_name} ··${linked!.account_number.slice(-4)}` : 'Your bank account'}</b><span>{live ? 'Direct debit' : debitLine}</span></span>
+                  <i aria-hidden="true" />{linked && <BankLogo code={linked.bank_code} name={linked.bank_name} />}<span className="grow"><b>{live ? `${linked!.bank_name} ··${linked!.account_number.slice(-4)}` : 'Your bank account'}</b><span>{live ? 'Direct debit' : debitLine}</span></span>
                 </button>
                 <button type="button" role="radio" aria-checked={way === 'transfer'} className="way" onClick={() => { setProblem(null); setWay('transfer') }}>
                   <i aria-hidden="true" /><span className="grow"><b>Bank transfer</b><span>From any bank app</span></span>

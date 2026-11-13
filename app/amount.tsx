@@ -58,12 +58,19 @@ export function Amount({ id, digits, onDigits, onEnter, max = 5_000_000, pad, pa
     if (Number(d || 0) <= max) onDigits(d === '0' ? '' : d)
   }
   const press = (k: (typeof KEYS)[number]) => take(k === 'del' ? digits.slice(0, -1) : digits + k)
+  // Each digit keeps its key while it stays put, so only a new one rolls in;
+  // a comma's key is where it falls, so it slides in when the number grows.
+  let seen = 0
+  const chars = (shown || '0').split('').map(c => c === ','
+    ? { c, k: `c${seen}` }
+    : { c, k: `d${seen++}-${c}` })
   return (
     <>
       <label className="sr" htmlFor={id}>{label}</label>
-      <div className={`amt fit-${fit(shown)}`}>
-        <span>₦</span>
-        <input id={id} inputMode={withPad ? 'none' : 'numeric'} readOnly={withPad} autoComplete="off" placeholder="0"
+      <div className={`amt rolling fit-${fit(shown)}${shown ? '' : ' empty'}`}>
+        <span className="cur" aria-hidden="true">₦</span>
+        <span className="fig" aria-hidden="true">{chars.map(x => <span key={x.k} className={x.c === ',' ? 'ch comma' : 'ch'}>{x.c}</span>)}</span>
+        <input id={id} inputMode={withPad ? 'none' : 'numeric'} readOnly={withPad} autoComplete="off"
           autoFocus={autoFocus && !withPad} value={shown}
           onChange={e => take(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && onEnter) { e.preventDefault(); onEnter() } }} />
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { BankLogo } from '../bank-logo'
 import { Amount } from '../amount'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
@@ -132,7 +133,7 @@ export function TransferFlow({ balance, onClose, onPaid, onBack }: { balance: nu
           <div className="pick">
             {banks === null ? <p className="none">Loading banks…</p>
               : shown.length === 0 ? (banks.length ? <p className="none">No bank by that name.</p> : null)
-              : shown.map(b => <button key={b.code} type="button" onClick={() => setBank(b)}><span className="pin">{b.name.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()}</span><span className="grow"><b>{b.name}</b></span></button>)}
+              : shown.map(b => <button key={b.code} type="button" onClick={() => setBank(b)}><BankLogo code={b.code} name={b.name} className="pin" /><span className="grow"><b>{b.name}</b></span></button>)}
           </div>
         </>
       ) : (

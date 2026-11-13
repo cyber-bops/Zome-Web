@@ -145,7 +145,7 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
           <div className="quick">
             {QUICK.map(n => <button key={n} type="button" aria-pressed={amount === n} onClick={() => set(String(n))}>₦{n.toLocaleString('en-NG')}</button>)}
           </div>
-          {problem && <p className="err" role="alert">{problem}</p>}
+          {problem && <p className={verify ? 'ps-note' : 'err'} role={verify ? 'status' : 'alert'}>{problem}</p>}
           {verify && onVerify && <button type="button" className="btn soft top-gap wide" onClick={onVerify}>Add your BVN</button>}
         </div>
         <button type="button" className="way-bar" onClick={() => setChoosing(true)} aria-haspopup="dialog">

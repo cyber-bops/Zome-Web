@@ -4,6 +4,8 @@
 const id = '[0-9a-f-]{36}'
 const allowed: Array<[string, RegExp]> = [
   ['POST', /^auth\/(start|verify|provider|sign-in|sign-out|sign-out-all|password)$/],
+  // Still there (ADR-0056): asking keeps an idle-limited web session going.
+  ['GET', /^auth\/session$/],
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).

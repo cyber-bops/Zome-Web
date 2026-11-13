@@ -14,7 +14,8 @@ export const SESSION_COOKIE_OPTIONS = {
   sameSite: 'lax' as const,
   path: '/',
   // The cookie lasts as long as the session the API gave (see sessionCookieAge);
-  // this is the most it is ever kept. The API ends a session sooner if it is idle or revoked.
+  // this is the most it is ever kept. A web session lasts 12 hours at most and
+  // the API ends it after 15 minutes idle (ADR-0056), or when it is revoked.
   maxAge: 30 * 24 * 60 * 60,
 }
 

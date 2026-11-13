@@ -51,11 +51,14 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
   const [viaGoogle, setViaGoogle] = useState(false)
   // The password was right, but this browser is new to the account (ADR-0055).
   const [newBrowser, setNewBrowser] = useState(false)
+  // Signed out after 15 minutes away (ADR-0056): say so, kindly.
+  const [away, setAway] = useState(false)
 
   useEffect(() => {
     if (mode !== 'log-in') return
     const r = recall()
     if (r) { setKnown(r); setEmail(r.email) }
+    if (new URLSearchParams(location.search).get('ended') === 'idle') setAway(true)
     // Back from Google (google.tsx): sign in with the token it gave.
     const back = backFromGoogle()
     if (!back) return
@@ -235,7 +238,8 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
               )}
               {secret('password', 'Password', password, setPassword, 'current-password')}
               <p className="forgot"><button type="button" className="link-btn" disabled={busy} onClick={forgot}>Forgot password?</button></p>
-              {problem && <p className="problem" role="alert">{problem}</p>}
+              {problem ? <p className="problem" role="alert">{problem}</p>
+                : away && <p className="away-note" role="status">We signed you out after 15 minutes away, to keep your money safe. Log in to carry on.</p>}
               <button className="btn lg wide" type="submit" disabled={busy || !looksLikeEmail(email) || !password}>
                 {busy ? 'Signing in…' : 'Log in'}
               </button>

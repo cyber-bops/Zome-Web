@@ -810,3 +810,6 @@ body { background: #FFFFFF; }
 .give .tape .paper { box-shadow: none; }
 .give .tape { filter: drop-shadow(0 1px 1px rgba(17,19,24,.06)) drop-shadow(0 16px 30px rgba(17,19,24,.10)); transform: none; }
 .give .tape:hover { transform: none; }
+
+/* Signed out after 15 minutes away (ADR-0056) */
+.away-note { color: var(--ink-2); font-size: 14px; line-height: 1.45; margin: 4px 0 12px; }

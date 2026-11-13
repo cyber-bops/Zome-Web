@@ -6,6 +6,7 @@ test('only the listed routes pass the door', () => {
   assert.equal(isAllowed('POST', 'auth/sign-in'), true)
   assert.equal(isAllowed('GET', 'vault'), true)
   assert.equal(isAllowed('GET', 'me/profile'), true)
+  assert.equal(isAllowed('GET', 'auth/session'), true, 'still there (ADR-0056)')
   assert.equal(isAllowed('PUT', 'me/profile'), true)
   assert.equal(isAllowed('POST', 'vault'), false, 'the method matters')
   assert.equal(isAllowed('GET', 'vault/../merchant/me'), false)

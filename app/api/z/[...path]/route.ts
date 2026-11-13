@@ -45,7 +45,8 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
   if (signsIn(path) && body && typeof body === 'object' && !Array.isArray(body)) {
     const key = deviceKey(jar.get(DEVICE_COOKIE)?.value)
     jar.set(DEVICE_COOKIE, key, DEVICE_COOKIE_OPTIONS)
-    body = { ...(body as Record<string, unknown>), device_key: key }
+    // And that it's the web, so the session ends when idle (ADR-0056).
+    body = { ...(body as Record<string, unknown>), device_key: key, web: true }
   }
   try {
     const data = await api<Record<string, unknown> | null>(`/v1/${path}${passedQuery(path, new URL(request.url).searchParams)}`, {

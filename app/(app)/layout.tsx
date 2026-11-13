@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { me } from '@/server/api'
 import { ZomeMark } from '../mark'
+import { IdleGuard } from './idle'
 import { Tabs, TopLinks } from './nav'
 
 // Every page behind sign-in: the wordmark, the pages in mono capitals, and
@@ -20,6 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </header>
       <main className="app">{children}</main>
       <Tabs />
+      <IdleGuard />
     </>
   )
 }

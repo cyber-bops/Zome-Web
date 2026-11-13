@@ -795,3 +795,18 @@ body { background: #FFFFFF; }
 .amt.rolling:focus-within .fig { text-decoration: none; }
 .amt.rolling:focus-within .fig::after { content: ""; width: 2px; height: .8em; background: var(--blue); align-self: center; margin-left: 3px; border-radius: 2px; }
 @media (prefers-reduced-motion: no-preference) { .amt.rolling:focus-within .fig::after { animation: caret 1s steps(1) infinite; } @keyframes caret { 50% { opacity: 0; } } }
+
+/* The public giving form: the receipt's edges kept, the new fields and type */
+.give .paper { font-family: var(--f-text); padding: 30px 22px 24px; }
+.give .ph b { font-family: var(--f-text); font-size: 17px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
+.give .ph span { font-family: var(--f-text); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+.give .amt.rolling { justify-content: center; margin-top: 8px; }
+.give .quick { margin-top: 12px; }
+.give-fields .label { font-family: var(--f-text); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--ink-2); font-weight: 600; }
+.give-fields .field { background: var(--tile); border: 0; border-radius: 14px; padding: 0 14px; height: 48px; }
+.give-fields .field:focus { outline: 2px solid var(--blue); outline-offset: 0; }
+.give .give-note { font-size: 13px; color: var(--ink-2); }
+.give .pf { font-family: var(--f-mono); }
+.give .tape .paper { box-shadow: none; }
+.give .tape { filter: drop-shadow(0 1px 1px rgba(17,19,24,.06)) drop-shadow(0 16px 30px rgba(17,19,24,.10)); transform: none; }
+.give .tape:hover { transform: none; }

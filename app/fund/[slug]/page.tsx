@@ -66,7 +66,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
           <h2 className="fund-sub">Where the money went</h2>
           {p.payments.length === 0 ? <p className="none">Nothing paid out yet. Each payment to a provider shows here.</p> : (
             <ul className="fund-list">{p.payments.map((x, i) => (
-              <li key={i}><span className="grow"><b>{x.provider}</b> <span className="mut">· {day(x.at)}</span></span><span className="mono">{naira(x.amount_kobo)}</span><span className="paid-tag">PAID</span></li>
+              <li key={i}><span className="grow"><b>{x.provider}</b> <span className="mut">· {day(x.at)}</span></span><span className="mono">{naira(x.amount_kobo, true)}</span><span className="paid-tag">PAID</span></li>
             ))}</ul>
           )}
 
@@ -78,7 +78,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
           {p.recent.length > 0 && <>
             <h2 className="fund-sub">Recent gifts</h2>
             <ul className="fund-list">{p.recent.map((g, i) => (
-              <li key={i}><span className="grow"><b>{g.name}</b> <span className="mut">· {day(g.at)}</span></span><span className="mono in">+{naira(g.amount_kobo)}</span></li>
+              <li key={i}><span className="grow"><b>{g.name}</b> <span className="mut">· {day(g.at)}</span></span><span className="mono in">+{naira(g.amount_kobo, true)}</span></li>
             ))}</ul>
           </>}
           <Report slug={s} />

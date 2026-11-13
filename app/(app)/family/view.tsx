@@ -7,6 +7,7 @@ import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
 import type { GiftLink, Movement, MyCareFund } from '@/server/api'
 import { CareFundPanel } from './carefund'
+import { HeartIcon, LinkIcon, MoreIcon, ShareIcon } from '../../icons'
 import { Sheet } from '../sheet'
 
 // Family (ADR-0053 §6): the link that lets family give to the purse, and
@@ -25,7 +26,7 @@ export function FamilyView({ link, origin, first, gifts, open, fund, mode }: { l
   const [busy, setBusy] = useState(false)
   const [problem, setProblem] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
-  const [ask, setAsk] = useState<null | 'replace' | 'off'>(null)
+  const [ask, setAsk] = useState<null | 'more' | 'replace' | 'off'>(null)
   const [toast, setToast] = useState<string | null>(null)
   const say = (t: string) => { setToast(t); setTimeout(() => setToast(null), 3200) }
   const url = link ? `${origin}/give/${link.slug}` : ''
@@ -40,47 +41,68 @@ export function FamilyView({ link, origin, first, gifts, open, fund, mode }: { l
     } catch (e) { setProblem(words(e)) } finally { setBusy(false) }
   }
 
+  const short = url.replace(/^https?:\/\//, '')
+  const shareLink = () => {
+    if (navigator.share) navigator.share({ text: share }).catch(() => {})
+    else window.open(`https://wa.me/?text=${encodeURIComponent(share)}`, '_blank', 'noreferrer')
+  }
+
   return (
-    <div className="view">
-      <div>
-        <h1 className="page-h">Care Fund</h1>
-        <div className="segmented" role="tablist" aria-label="Care Fund">
-          <Link href="/care-fund?mode=family" role="tab" aria-selected={mode === 'family'} scroll={false}>Family</Link>
-          <Link href="/care-fund?mode=public" role="tab" aria-selected={mode === 'public'} scroll={false}>Public</Link>
-        </div>
-        <p className="mode-line">{mode === 'family' ? 'A private link for family. Gifts go into your Care Purse, for care.' : 'A fundraiser with its own page. Paid only to hospitals, clinics, pharmacies and labs.'}</p>
-        {mode === 'public' ? (open && fund ? <CareFundPanel data={fund} origin={origin} onSay={say} /> : <div className="card"><h2>Care Fund isn’t open to you yet</h2></div>)
-        : !open ? <div className="card"><h2>Care Purse isn’t open to you yet</h2></div> : link ? (
-          <section className="envelope">
-            <p className="lbl">Your link</p>
-            <div className="url"><span className="mono">{url.replace(/^https?:\/\//, '')}</span>
-              <button type="button" className="copy" onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true), () => setProblem(url))}>{copied ? 'Copied' : 'Copy'}</button></div>
-            <div className="env-acts">
-              <a className="btn" href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
-              <a className="btn soft" href={url} target="_blank" rel="noreferrer">See what they see</a>
-            </div>
-            <p className="small">Givers see “{first || 'Your name'}” and your surname’s initial, never anything about your health.</p>
-            <div className="row"><span>Make a new link</span><button type="button" className="btn soft small-btn" onClick={() => setAsk('replace')}>New link</button></div>
-            <div className="row"><span>Turn it off</span><button type="button" className="btn danger small-btn" onClick={() => setAsk('off')}>Turn off</button></div>
-          </section>
-        ) : (
-          <section className="envelope">
-            <p className="lbl">No link yet</p>
-            <p className="env-lede">Make a link to share with family and friends.</p>
-            <button type="button" className="btn" disabled={busy} onClick={() => act('make')}>{busy ? 'Making…' : 'Make my link'}</button>
-          </section>
-        )}
-        {problem && <p className="err" role="alert">{problem}</p>}
+    <div className="cf">
+      <h1 className="page-h">Care Fund</h1>
+      <div className="segmented" role="tablist" aria-label="Care Fund">
+        <Link href="/care-fund?mode=family" role="tab" aria-selected={mode === 'family'} scroll={false}>Family</Link>
+        <Link href="/care-fund?mode=public" role="tab" aria-selected={mode === 'public'} scroll={false}>Public</Link>
       </div>
-      {mode === 'family' && <div>
-        <section className="sheet-paper">
-          <p className="lbl">Gifts · {naira(given, true)} in all</p>
-          {gifts.length === 0 ? <p className="none">No gifts yet. They show here as they arrive.</p> : gifts.map((m, i) => (
-            <div key={i} className="step done"><span className="grow"><b>{m.from && m.from !== 'Anonymous' ? m.from : 'Anonymous'}</b> <span className="mut">· {day(m.at)}</span></span><span className="mono in">+{naira(m.amount_kobo)}</span></div>
-          ))}
-        </section>
-      </div>}
+
+      {mode === 'public' ? (open && fund ? <CareFundPanel data={fund} origin={origin} onSay={say} /> : <div className="cf-empty"><b>Care Fund isn’t open to you yet</b></div>)
+      : !open ? <div className="cf-empty"><b>Care Purse isn’t open to you yet</b></div>
+      : !link ? (
+        <div className="cf-empty">
+          <span className="badge a"><HeartIcon /></span>
+          <b>Let family add to your care</b>
+          <p>A private link. What they give goes into your Care Purse, for care.</p>
+          <button type="button" className="btn lg" disabled={busy} onClick={() => act('make')}>{busy ? 'Creating…' : 'Create family link'}</button>
+        </div>
+      ) : (
+        <>
+          <div className="cf-hero">
+            <span className="lbl">From family</span>
+            <p className="cf-big">{naira(given, true)}</p>
+            <p className="under">{gifts.length} {gifts.length === 1 ? 'gift' : 'gifts'} · spent first, on care</p>
+          </div>
+          <div className="cf-link">
+            <span className="badge"><LinkIcon /></span>
+            <button type="button" className="grow" onClick={() => navigator.clipboard?.writeText(url).then(() => { setCopied(true); say('Link copied') }, () => {})}>
+              <b>{copied ? 'Copied' : short}</b><span>Tap to copy</span>
+            </button>
+            <button type="button" className="icon-btn primary" onClick={shareLink} aria-label="Share"><ShareIcon /></button>
+            <button type="button" className="icon-btn" onClick={() => setAsk('more')} aria-label="More"><MoreIcon /></button>
+          </div>
+          <div>
+            <p className="sec-h">Gifts</p>
+            {gifts.length === 0 ? <p className="none">No gifts yet.</p> : (
+              <div className="cf-list">
+                {gifts.map((m, i) => {
+                  const who = m.from && m.from !== 'Anonymous' ? m.from : 'Anonymous'
+                  return <div key={i} className="cf-row"><span className="badge g">{who === 'Anonymous' ? '?' : who[0].toUpperCase()}</span><span className="grow"><b>{who}</b><span>{day(m.at)}</span></span><span className="amt-in">+{naira(m.amount_kobo, true)}</span></div>
+                })}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+      {problem && <p className="err" role="alert">{problem}</p>}
       {toast && <div className="toast" role="status">{toast}</div>}
+      {ask === 'more' && (
+        <Sheet eyebrow="Family link" title="More" onClose={() => setAsk(null)}>
+          <div className="menu">
+            <a href={url} target="_blank" rel="noreferrer">See what they see</a>
+            <button type="button" onClick={() => setAsk('replace')}>Make a new link</button>
+            <button type="button" className="danger" onClick={() => setAsk('off')}>Turn off the link</button>
+          </div>
+        </Sheet>
+      )}
       {ask === 'replace' && (
         <Sheet eyebrow="Family link" title="Make a new link?" lede="Your old link stops working at once. Anyone who has it will see that it’s closed." onClose={() => setAsk(null)}
           foot={<><button type="button" className="btn soft" onClick={() => setAsk(null)}>Cancel</button><button type="button" className="btn" disabled={busy} onClick={() => act('make')}>{busy ? 'Making…' : 'Make a new link'}</button></>} />

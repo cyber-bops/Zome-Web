@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { LinkIcon, MoreIcon, PayIcon, ShareIcon, ShieldIcon } from '../../icons'
 import { Amount } from '../../amount'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -15,7 +16,7 @@ import { Sheet } from '../sheet'
 // care: it leaves only as a payment to a business in the network.
 const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
 const day = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(iso))
-type Open = null | 'start' | 'pay' | 'update' | 'edit' | 'extend' | 'close'
+type Open = null | 'start' | 'pay' | 'update' | 'edit' | 'extend' | 'close' | 'more'
 
 export function CareFundPanel({ data, origin, onSay }: { data: MyCareFund; origin: string; onSay: (t: string) => void }) {
   const router = useRouter()
@@ -25,15 +26,15 @@ export function CareFundPanel({ data, origin, onSay }: { data: MyCareFund; origi
   const close = () => setOpen(null)
 
   if (!f) return (
-    <section className="envelope fund-env">
-      <p className="lbl">Care Fund</p>
-      <h2 className="env-h">Raise money for a hospital bill.</h2>
-      <p className="env-lede">Share a page with a story and a goal. What’s given is held for care and paid only to clinics, pharmacies and labs, so givers know where it went.</p>
+    <div className="cf-empty">
+      <span className="badge b"><ShieldIcon /></span>
+      <b>Raise money for a hospital bill</b>
+      <p>A public page with your story and a goal. Paid only to hospitals, clinics, pharmacies and labs.</p>
       {data.may_start
-        ? <button type="button" className="btn" onClick={() => setOpen('start')}>Start a Care Fund</button>
-        : <p className="small">To start one, finish setting up: your BVN, NIN, selfie, phone and next of kin. <Link href="/profile" className="link-btn">Go to You</Link></p>}
+        ? <button type="button" className="btn lg" onClick={() => setOpen('start')}>Start a fundraiser</button>
+        : <p className="small">First finish setting up: BVN, NIN, selfie, phone and next of kin. <Link href="/profile" className="link-btn">Go to You</Link></p>}
       {open === 'start' && <StartSheet onClose={close} onDone={t => { close(); onSay(t); router.refresh() }} />}
-    </section>
+    </div>
   )
 
   const url = `${origin}/fund/${f.slug}`
@@ -41,51 +42,68 @@ export function CareFundPanel({ data, origin, onSay }: { data: MyCareFund; origi
   const left = Math.ceil((Date.parse(f.ends_at) - Date.now()) / 86_400_000)
   const share = `I’ve started a Care Fund on Zome: ${f.title}. Everything given is paid only to the hospital, clinic or pharmacy, and every payment shows on the page: ${url}`
   const status = f.frozen ? 'Paused by Zome' : f.closed_at ? 'Closed to gifts' : left > 0 ? `${left} ${left === 1 ? 'day' : 'days'} left` : 'Ended'
+  const shareLink = () => {
+    if (navigator.share) navigator.share({ text: share }).catch(() => {})
+    else window.open(`https://wa.me/?text=${encodeURIComponent(share)}`, '_blank', 'noreferrer')
+  }
+  type Line = { who: string; at: string; kobo: number; out: boolean; note?: string }
+  const activity: Line[] = [
+    ...(data.gifts ?? []).map(g => ({ who: g.name, at: g.at, kobo: g.amount_kobo, out: false, note: g.note })),
+    ...(data.payments ?? []).map(p => ({ who: p.provider, at: p.at, kobo: p.amount_kobo, out: true })),
+  ].sort((x, y) => Date.parse(y.at) - Date.parse(x.at))
 
   return (
-    <section className="envelope fund-env">
-      <p className="lbl">Care Fund · {status}</p>
-      <h2 className="env-h">{f.title}</h2>
-      <p className="fund-mine"><b>{naira(f.raised_kobo, true)}</b> <span>of {naira(f.goal_kobo, true)} · {f.gifts} {f.gifts === 1 ? 'gift' : 'gifts'}</span></p>
-      <div className="meter" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Raised"><i className={`w${Math.round(pct / 5) * 5}`} /></div>
-      <dl className="kv fund-kv">
-        <div><dt>Held for care</dt><dd className="mono">{naira(f.balance_kobo)}</dd></div>
-        <div><dt>Paid to providers</dt><dd className="mono">{naira(f.paid_out_kobo)}</dd></div>
-      </dl>
-      {!f.closed_at && <>
-        <div className="url"><span className="mono">{url.replace(/^https?:\/\//, '')}</span>
-          <button type="button" className="copy" onClick={() => navigator.clipboard?.writeText(url).then(() => setCopied(true), () => {})}>{copied ? 'Copied' : 'Copy'}</button></div>
-        <div className="env-acts">
-          <a className="btn" href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
-          <a className="btn soft" href={url} target="_blank" rel="noreferrer">See the page</a>
-        </div>
-      </>}
-      <div className="env-acts">
-        <button type="button" className="btn" disabled={f.frozen || f.balance_kobo === 0} onClick={() => setOpen('pay')}>Pay a provider</button>
-        <button type="button" className="btn soft" disabled={f.frozen} onClick={() => setOpen('update')}>Post an update</button>
+    <>
+      <div className="cf-hero">
+        <span className="lbl">{status}</span>
+        <p className="cf-title">{f.title}</p>
+        <p className="cf-big">{naira(f.raised_kobo, true)} <span>of {naira(f.goal_kobo, true)}</span></p>
+        <div className="meter" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Raised"><i className={`w${Math.round(pct / 5) * 5}`} /></div>
       </div>
-      {f.closed_at && f.balance_kobo > 0 && <p className="small">Closed to gifts. What’s left stays held for care: pay a provider from it whenever care is needed.</p>}
-      {!f.closed_at && <>
-        <div className="row"><span>Change the goal or story</span><button type="button" className="btn soft small-btn" onClick={() => setOpen('edit')}>Edit</button></div>
-        {!f.extended && <div className="row"><span>Keep it open longer</span><button type="button" className="btn soft small-btn" onClick={() => setOpen('extend')}>Extend</button></div>}
-        <div className="row"><span>Stop taking gifts</span><button type="button" className="btn danger small-btn" onClick={() => setOpen('close')}>Close</button></div>
-      </>}
-
-      {(data.payments?.length ?? 0) > 0 && <>
-        <p className="lbl top-gap">Paid out</p>
-        {data.payments!.map((p, i) => <div key={i} className="step done"><span className="grow"><b>{p.provider}</b> <span className="mut">· {day(p.at)}</span></span><span className="mono">{naira(p.amount_kobo)}</span></div>)}
-      </>}
-      {(data.gifts?.length ?? 0) > 0 && <>
-        <p className="lbl top-gap">Gifts</p>
-        {data.gifts!.map((g, i) => <div key={i} className="step done"><span className="grow"><b>{g.name}</b> <span className="mut">· {day(g.at)}</span>{g.note ? <span className="fund-note">“{g.note}”</span> : null}</span><span className="mono in">+{naira(g.amount_kobo)}</span></div>)}
-      </>}
-
+      <button type="button" className="btn lg wide" disabled={f.frozen || f.balance_kobo === 0} onClick={() => setOpen('pay')}>Pay a provider</button>
+      <div className="tiles">
+        <div className="tile"><span className="ic b"><ShieldIcon /></span><span className="t">Held for care</span><span className="num">{naira(f.balance_kobo, true)}</span></div>
+        <div className="tile"><span className="ic ink"><PayIcon /></span><span className="t">Paid out</span><span className="num">{naira(f.paid_out_kobo, true)}</span></div>
+      </div>
+      <div className="cf-link">
+        <span className="badge"><LinkIcon /></span>
+        <button type="button" className="grow" onClick={() => navigator.clipboard?.writeText(url).then(() => { setCopied(true); onSay('Link copied') }, () => {})}>
+          <b>{copied ? 'Copied' : url.replace(/^https?:\/\//, '')}</b><span>Tap to copy</span>
+        </button>
+        {!f.closed_at && <button type="button" className="icon-btn primary" onClick={shareLink} aria-label="Share"><ShareIcon /></button>}
+        <button type="button" className="icon-btn" onClick={() => setOpen('more')} aria-label="More"><MoreIcon /></button>
+      </div>
+      <div>
+        <p className="sec-h">Activity</p>
+        {activity.length === 0 ? <p className="none">No gifts yet.</p> : (
+          <div className="cf-list">
+            {activity.map((x, i) => (
+              <div key={i} className="cf-row">
+                <span className={`badge ${x.out ? 'ink' : 'g'}`}>{x.out ? <PayIcon /> : x.who[0]?.toUpperCase() ?? '?'}</span>
+                <span className="grow"><b>{x.who}</b><span>{x.out ? 'Paid' : x.note ? `“${x.note}”` : 'Gift'} · {day(x.at)}</span></span>
+                <span className={x.out ? 'amt-out' : 'amt-in'}>{x.out ? '−' : '+'}{naira(x.kobo, true)}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {open === 'more' && (
+        <Sheet eyebrow="Care Fund" title="More" onClose={close}>
+          <div className="menu">
+            <a href={url} target="_blank" rel="noreferrer">See the page</a>
+            <button type="button" disabled={f.frozen} onClick={() => setOpen('update')}>Post an update</button>
+            {!f.closed_at && <button type="button" onClick={() => setOpen('edit')}>Edit the goal or story</button>}
+            {!f.closed_at && !f.extended && <button type="button" onClick={() => setOpen('extend')}>Keep it open 30 more days</button>}
+            {!f.closed_at && <button type="button" className="danger" onClick={() => setOpen('close')}>Stop taking gifts</button>}
+          </div>
+        </Sheet>
+      )}
       {open === 'pay' && <PaySheet balance={f.balance_kobo} fund={{ id: f.id, title: f.title }} onClose={close} onPaid={t => onSay(t)} />}
       {open === 'update' && <UpdateSheet id={f.id} onClose={close} onDone={() => { close(); onSay('Update posted'); router.refresh() }} />}
       {open === 'edit' && <EditSheet id={f.id} title={f.title} story={f.story} goal={f.goal_kobo} onClose={close} onDone={() => { close(); onSay('Saved'); router.refresh() }} />}
       {open === 'extend' && <Confirm title="Keep it open longer?" lede="It stays open for another 30 days. A fund can be extended once." go="Extend" path={`me/care-fund/${f.id}/extend`} onClose={close} onDone={() => { close(); onSay('Extended'); router.refresh() }} />}
       {open === 'close' && <Confirm danger title="Stop taking gifts?" lede="The page stays up, and what was raised stays held for care: you can still pay providers from it. This can’t be undone." go="Close to gifts" path={`me/care-fund/${f.id}/close`} onClose={close} onDone={() => { close(); onSay('Closed to gifts'); router.refresh() }} />}
-    </section>
+    </>
   )
 }
 

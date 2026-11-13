@@ -6,6 +6,7 @@ import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
 import type { Mandate, TopUp } from '@/server/api'
 import { Sheet } from './sheet'
+import { HangingTicket } from './ticket'
 
 // Adding money, two ways, as the app offers them:
 // - from the person's linked bank account by direct debit (ADR-0025): the fee
@@ -81,13 +82,10 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
   if (debit && linked) return (
     <Sheet eyebrow="Add money" title={`${naira(debit.amount_kobo)} on its way`} onClose={() => { onClose(); onDone?.(`${naira(debit.amount_kobo)} on its way from ${linked.bank_name}`) }}
       foot={<button type="button" className="btn span" onClick={() => { onClose(); onDone?.(`${naira(debit.amount_kobo)} on its way from ${linked.bank_name}`) }}>Done</button>}>
-      <dl className="kv">
-        <div><dt>From</dt><dd>{linked.bank_name} ··{linked.account_number.slice(-4)}</dd></div>
-        <div><dt>Into your purse</dt><dd>{naira(debit.amount_kobo)}</dd></div>
-        {debit.fee_kobo > 0 && <div><dt>Fee</dt><dd>{naira(debit.fee_kobo)}</dd></div>}
-        <div><dt>Taken from your bank</dt><dd>{naira(debit.total_kobo)}</dd></div>
-      </dl>
-      <p className="small">Your bank sends it by direct debit. It shows on your purse as soon as it arrives.</p>
+      <HangingTicket eyebrow="ADDED" headline="Added." stamp="ADDED" green
+        fields={[['From', `${linked.bank_name} ··${linked.account_number.slice(-4)}`], ['Into', 'Care Purse']]}
+        reference={debit.id.slice(0, 8).toUpperCase()} title="On its way"
+        cells={[{ k: 'Amount', v: naira(debit.amount_kobo) }, { k: 'Fee', v: naira(debit.fee_kobo) }]} />
     </Sheet>
   )
 

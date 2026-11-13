@@ -7,6 +7,7 @@ import { naira } from '@/lib/money'
 import { PinSheet } from './pin'
 import { TransferFlow } from './transfer'
 import { Sheet } from './sheet'
+import { HangingTicket } from './ticket'
 
 // Paying a business on Zome from the Care Purse (ADR-0036): find the
 // provider, the amount, the PIN; then the receipt, stamped. A person with no
@@ -87,17 +88,16 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
     <PinSheet eyebrow={`${to.name} · ${naira(amount)}`} title="Enter your PIN" onClose={onClose} busyWord="Paying…" onPin={pay} />
   )
   if (step === 'paid' && paid) return (
-    <Sheet eyebrow={`Receipt ${paid.bill.receipt}`} title={`${naira(paid.bill.amount_kobo)} to ${paid.bill.merchant}`} onClose={onClose}
+    <Sheet eyebrow="Paid" title={paid.bill.merchant} onClose={onClose}
       foot={<button type="button" className="btn span" onClick={onClose}>Done</button>}>
-      <div className="paid-slip">
-        <span className="stamp big">PAID</span>
-        <dl className="kv">
-          <div><dt>To</dt><dd>{paid.bill.merchant}</dd></div>
-          <div><dt>From</dt><dd>{fund ? `Care Fund · ${fund.title}` : 'Care Purse'}</dd></div>
-          {note.trim() && <div><dt>For</dt><dd>{note.trim()}</dd></div>}
-          {paid.cashback_kobo > 0 && <div><dt>Cashback</dt><dd className="in">+{naira(paid.cashback_kobo)}</dd></div>}
-        </dl>
-      </div>
+      <HangingTicket eyebrow="PAID" headline="Paid." stamp="PAID"
+        fields={[['Receipt', paid.bill.receipt], ['Date', new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(paid.bill.created_at))]]}
+        reference={paid.bill.receipt} title="Paid"
+        cells={[
+          { k: 'To', v: paid.bill.merchant, full: true },
+          { k: 'Amount', v: naira(paid.bill.amount_kobo) },
+          paid.cashback_kobo > 0 ? { k: 'Cashback', v: `+${naira(paid.cashback_kobo)}`, good: true } : { k: 'From', v: fund ? 'Care Fund' : 'Care Purse' },
+        ]} />
     </Sheet>
   )
   if (step === 'amount' && to) return (

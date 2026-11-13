@@ -45,7 +45,7 @@ export function CareFundPanel({ data, origin, onSay }: { data: MyCareFund; origi
     <section className="envelope fund-env">
       <p className="lbl">Care Fund · {status}</p>
       <h2 className="env-h">{f.title}</h2>
-      <p className="fund-mine"><b className="mono">{naira(f.raised_kobo)}</b> <span>of {naira(f.goal_kobo)} · {f.gifts} {f.gifts === 1 ? 'gift' : 'gifts'}</span></p>
+      <p className="fund-mine"><b>{naira(f.raised_kobo, true)}</b> <span>of {naira(f.goal_kobo, true)} · {f.gifts} {f.gifts === 1 ? 'gift' : 'gifts'}</span></p>
       <div className="meter" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Raised"><i className={`w${Math.round(pct / 5) * 5}`} /></div>
       <dl className="kv fund-kv">
         <div><dt>Held for care</dt><dd className="mono">{naira(f.balance_kobo)}</dd></div>

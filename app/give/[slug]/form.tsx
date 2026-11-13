@@ -91,7 +91,6 @@ export function GiveForm({ slug, page, fund }: { slug: string; page: GivingPage;
       {problem && <p className="err" role="alert">{problem}</p>}
       <button type="submit" className="btn wide lg give-go" disabled={busy || !amount || !name.trim() || !email.includes('@')}>{busy ? 'Setting up…' : amount ? `Give ${naira(amount, true)}` : 'Give'}</button>
       <div className="bars" aria-hidden="true" />
-      <p className="pf">NO ZOME ACCOUNT NEEDED</p>
     </div></form>
   )
 }

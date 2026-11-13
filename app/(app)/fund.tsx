@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Amount } from '../amount'
+import { Amount, NumPad, usePhone } from '../amount'
 import { useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
@@ -38,6 +38,8 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
   const [topUp, setTopUp] = useState<TopUp | null>(null)
   const [debit, setDebit] = useState<Debit | null>(null)
   const [copied, setCopied] = useState(false)
+  const [choosing, setChoosing] = useState(false)
+  const phone = usePhone()
   // One key per way and amount, so a retry after a dropped connection never adds money twice.
   const key = useRef<{ for: string; key: string } | null>(null)
 
@@ -118,28 +120,66 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
     : way === 'debit' && !live ? (waiting || paused ? 'Waiting for your bank' : 'Link your bank account')
     : way === 'debit' ? (amount ? `Add ${naira(amount * 100, true)} now` : 'Add money') : 'Continue'
 
+  const chip = way === 'debit' && linked ? `${linked.bank_name.split(' ')[0]} ··${linked.account_number.slice(-4)}` : way === 'debit' ? 'Your bank' : 'Bank transfer'
+  const fee = way === 'debit' ? (quote ? naira(quote.fee_kobo) : '—') : 'Shown next'
+  const off = busy || (way === 'debit' ? (live ? amount === 0 : !!(waiting || paused)) : amount === 0)
+
+  // The mockup's Add money: a screen of its own on a phone, the same layout
+  // in a floating panel on a computer. "You add", the figure (it shrinks as
+  // it grows) with the way as a chip beside it; From and Fee in one block;
+  // the number pad; one button. The chip opens the choice of way.
   return (
-    <Sheet eyebrow="Care Purse" title="Add money" onClose={onClose}
-      foot={<>
-        <button type="button" className="btn soft" onClick={onClose}>Cancel</button>
-        <button type="button" className="btn" disabled={busy || (way === 'debit' ? (live ? amount === 0 : !!(waiting || paused)) : amount === 0)} onClick={go}>{goWord}</button>
-      </>}>
-      <Amount id="amount" digits={typed} onDigits={set} onEnter={go} max={MAX_NAIRA} pad autoFocus />
-      <div className="quick">
-        {QUICK.map(n => <button key={n} type="button" aria-pressed={amount === n} onClick={() => set(String(n))}>₦{n.toLocaleString('en-NG')}</button>)}
+    <div className="ps-backdrop" role="presentation" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="padscreen" role="dialog" aria-modal="true" aria-label="Add money">
+        <div className="ps-bar">
+          <button type="button" className="ps-back" onClick={onClose} aria-label="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
+          </button>
+          <h2>Add money</h2><span />
+        </div>
+        <div className="ps-body">
+          <span className="lbl">You add</span>
+          <div className="ps-line">
+            <Amount id="amount" digits={typed} onDigits={set} onEnter={go} max={MAX_NAIRA} padElsewhere autoFocus={!phone} />
+            <button type="button" className="way-chip" onClick={() => setChoosing(true)} aria-haspopup="dialog">
+              <span className={`dot${way === 'debit' ? ' bank' : ''}`} aria-hidden="true">{way === 'debit' ? (linked?.bank_name ?? 'B').slice(0, 2).toUpperCase() : '⇄'}</span>
+              {chip} <span aria-hidden="true">›</span>
+            </button>
+          </div>
+          {amount > 0 && (
+            <div className="cells">
+              <div><span>From</span><b>{way === 'debit' ? debitLine : 'Any bank app'}</b></div>
+              <div><span>Fee</span><b>{fee}</b></div>
+            </div>
+          )}
+          <div className="quick">
+            {QUICK.map(n => <button key={n} type="button" aria-pressed={amount === n} onClick={() => set(String(n))}>₦{n.toLocaleString('en-NG')}</button>)}
+          </div>
+          {problem && <p className="err" role="alert">{problem}</p>}
+          {verify && onVerify && <button type="button" className="btn soft top-gap wide" onClick={onVerify}>Add your BVN</button>}
+        </div>
+        {phone && <NumPad digits={typed} onDigits={set} max={MAX_NAIRA} />}
+        <div className="ps-cta"><button type="button" className="btn lg wide" disabled={off} onClick={go}>{goWord}</button></div>
+
+        {choosing && (
+          <>
+            <div className="ps-scrim" onClick={() => setChoosing(false)} />
+            <div className="ps-sheet" role="dialog" aria-label="Add money from">
+              <span className="grab" aria-hidden="true" />
+              <h3>Add money from</h3>
+              <div className="ways" role="radiogroup" aria-label="How">
+                <button type="button" role="radio" aria-checked={way === 'debit'} className="way" onClick={() => { setProblem(null); setWay('debit') }}>
+                  <i aria-hidden="true" /><span className="grow"><b>{live ? `${linked!.bank_name} ··${linked!.account_number.slice(-4)}` : 'Your bank account'}</b><span>{live ? 'Direct debit' : debitLine}</span></span>
+                </button>
+                <button type="button" role="radio" aria-checked={way === 'transfer'} className="way" onClick={() => { setProblem(null); setWay('transfer') }}>
+                  <i aria-hidden="true" /><span className="grow"><b>Bank transfer</b><span>From any bank app</span></span>
+                </button>
+              </div>
+              <button type="button" className="btn lg wide" onClick={() => setChoosing(false)}>Done</button>
+            </div>
+          </>
+        )}
       </div>
-      <div className="ways" role="radiogroup" aria-label="How">
-        <button type="button" role="radio" aria-checked={way === 'debit'} className="way" onClick={() => { setProblem(null); setWay('debit') }}>
-          <i aria-hidden="true" /><span className="grow"><b>From your bank account</b><span>{debitLine}</span>
-            {live && way === 'debit' && quote && <span className="fee">{quote.fee_kobo > 0 ? `${naira(quote.fee_kobo)} fee · ` : ''}{naira(quote.total_kobo)} from your bank</span>}</span>
-          {live && <em>One tap</em>}
-        </button>
-        <button type="button" role="radio" aria-checked={way === 'transfer'} className="way" onClick={() => { setProblem(null); setWay('transfer') }}>
-          <i aria-hidden="true" /><span className="grow"><b>Bank transfer</b><span>From any bank app</span></span>
-        </button>
-      </div>
-      {problem && <p className="err" role="alert">{problem}</p>}
-      {verify && onVerify && <button type="button" className="btn soft top-gap wide" onClick={onVerify}>Add your BVN</button>}
-    </Sheet>
+    </div>
   )
 }

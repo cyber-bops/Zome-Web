@@ -14,7 +14,7 @@ export function fit(shown: string): number {
   return n <= 6 ? 0 : n <= 7 ? 1 : n <= 9 ? 2 : 3
 }
 
-function usePhone() {
+export function usePhone() {
   const [phone, setPhone] = useState(false)
   useEffect(() => {
     const m = matchMedia('(max-width: 720px) and (pointer: coarse)')
@@ -25,12 +25,33 @@ function usePhone() {
   return phone
 }
 
-export function Amount({ id, digits, onDigits, onEnter, max = 5_000_000, pad, autoFocus, label = 'Amount' }: {
+/** The number pad on its own, for a screen that places it at the bottom. */
+export function NumPad({ digits, onDigits, max = 5_000_000 }: { digits: string; onDigits: (d: string) => void; max?: number }) {
+  const take = (raw: string) => {
+    const d = raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '')
+    if (Number(d || 0) <= max) onDigits(d === '0' ? '' : d)
+  }
+  return (
+    <div className="numpad" role="group" aria-label="Number pad">
+      {KEYS.map(k => (
+        <button key={k} type="button" onClick={() => take(k === 'del' ? digits.slice(0, -1) : digits + k)} aria-label={k === 'del' ? 'Delete' : undefined}>
+          {k === 'del'
+            ? <svg viewBox="0 0 26 22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" aria-hidden="true"><path d="M8 2h15a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8L1 11z" /><path d="M12 7l8 8M20 7l-8 8" strokeLinecap="round" /></svg>
+            : k}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export function Amount({ id, digits, onDigits, onEnter, max = 5_000_000, pad, padElsewhere, autoFocus, label = 'Amount' }: {
   id: string; digits: string; onDigits: (d: string) => void; onEnter?: () => void
   max?: number; pad?: boolean; autoFocus?: boolean; label?: string
+  /** The screen draws a NumPad itself: on a phone, keep the keyboard away. */
+  padElsewhere?: boolean
 }) {
   const phone = usePhone()
-  const withPad = !!pad && phone
+  const withPad = (!!pad || !!padElsewhere) && phone
   const shown = digits ? Number(digits).toLocaleString('en-NG') : ''
   const take = (raw: string) => {
     const d = raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '')
@@ -46,7 +67,7 @@ export function Amount({ id, digits, onDigits, onEnter, max = 5_000_000, pad, au
           autoFocus={autoFocus && !withPad} value={shown}
           onChange={e => take(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && onEnter) { e.preventDefault(); onEnter() } }} />
       </div>
-      {withPad && (
+      {withPad && !padElsewhere && (
         <div className="numpad" role="group" aria-label="Number pad">
           {KEYS.map(k => (
             <button key={k} type="button" onClick={() => press(k)} aria-label={k === 'del' ? 'Delete' : undefined}>

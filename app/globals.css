@@ -653,3 +653,35 @@ body { background: #FFFFFF; }
 .fund-story { box-shadow: none; padding-inline: 0; background: none; }
 .fund-h { font-weight: 600; letter-spacing: -0.03em; }
 .fund-list .mono { font-family: var(--f-text); font-weight: 600; }
+
+/* Add money, as the mockup has it: a screen of its own on a phone */
+.ps-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(17,19,24,.38); display: grid; place-items: center; padding: 16px; }
+.padscreen { position: relative; width: 100%; max-width: 440px; max-height: calc(100dvh - 32px); background: #FFFFFF; border-radius: 30px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 60px -10px rgba(17,19,24,.35); }
+.ps-bar { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; padding: 14px 16px 0; }
+.ps-bar h2 { text-align: center; font-size: 16px; font-weight: 600; margin: 0; }
+.ps-back { width: 38px; height: 38px; border-radius: 50%; background: var(--tile); display: grid; place-items: center; }
+.ps-back svg { width: 16px; height: 16px; }
+.ps-body { padding: 22px 20px 6px; overflow-y: auto; }
+.ps-body .lbl { display: block; margin-bottom: 4px; }
+.ps-line { display: flex; align-items: center; gap: 10px; }
+.ps-line .amt { flex: 1; min-width: 0; }
+.way-chip { display: inline-flex; align-items: center; gap: 7px; background: var(--tile); border-radius: 99px; padding: 6px 12px 6px 6px; font-weight: 600; font-size: 13.5px; white-space: nowrap; flex: none; max-width: 52%; overflow: hidden; }
+.way-chip .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #5F6673; color: #fff; font-family: var(--f-mono); font-size: 10px; font-weight: 600; flex: none; }
+.way-chip .dot.bank { background: var(--blue); }
+.ps-body .cells { margin-top: 14px; }
+.ps-body .quick { margin-top: 14px; }
+.padscreen .numpad { margin: auto 14px 0; }
+.ps-cta { padding: 10px 20px 20px; }
+.ps-scrim { position: absolute; inset: 0; background: rgba(17,19,24,.35); z-index: 2; }
+.ps-sheet { position: absolute; inset: auto 8px 8px; z-index: 3; background: #FFFFFF; border-radius: 30px; padding: 10px 16px 16px; box-shadow: 0 20px 60px -10px rgba(17,19,24,.35); display: flex; flex-direction: column; gap: 14px; }
+.ps-sheet .grab { width: 36px; height: 5px; border-radius: 9px; background: #E4E6EA; margin: 0 auto; }
+.ps-sheet h3 { text-align: center; font-size: 16px; font-weight: 600; margin: 0; }
+.ps-sheet .ways { margin-top: 0; }
+@media (max-width: 720px) {
+  .ps-backdrop { padding: 0; place-items: stretch; }
+  .padscreen { max-width: none; max-height: none; height: 100dvh; border-radius: 0; box-shadow: none; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .padscreen { animation: rise .22s cubic-bezier(.2,.8,.2,1); }
+  .ps-sheet { animation: rise .22s ease-out; }
+}

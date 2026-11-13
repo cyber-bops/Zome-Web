@@ -813,3 +813,20 @@ body { background: #FFFFFF; }
 
 /* Signed out after 15 minutes away (ADR-0056) */
 .away-note { color: var(--ink-2); font-size: 14px; line-height: 1.45; margin: 4px 0 12px; }
+
+/* The Terms of Service, open to anyone (/terms) */
+.legal { max-width: 720px; margin: 0 auto; padding: 28px 20px 80px; color: var(--ink); line-height: 1.6; font-size: 15px; }
+.legal .wm { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 24px; }
+.legal .wm svg { width: 18px; height: 24px; color: var(--blue); }
+.legal h1 { font-size: 28px; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 12px; }
+.legal h2 { font-size: 19px; margin: 28px 0 8px; scroll-margin-top: 16px; }
+.legal h3 { font-size: 16px; margin: 20px 0 6px; }
+.legal p { margin: 0 0 12px; color: var(--ink-2); }
+.legal p b, .legal li b { color: var(--ink); }
+.legal ul { margin: 0 0 12px; padding-left: 20px; color: var(--ink-2); }
+.legal li { margin: 4px 0; }
+.legal hr { border: 0; border-top: 1px solid var(--rule); margin: 24px 0; }
+.legal table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 0 0 16px; display: block; overflow-x: auto; }
+.legal th, .legal td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+.legal a { color: var(--blue); text-decoration: underline; }
+.give-note a, .fund-promise a { color: var(--blue); text-decoration: underline; }

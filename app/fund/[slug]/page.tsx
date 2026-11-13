@@ -59,7 +59,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
           </section>
           {p.taking_gifts && <a className="btn wide lg fund-jump" href="#give">Give to this fund</a>}
           <section className="fund-promise">
-            <b>Held for care.</b> Paid only to hospitals, clinics, pharmacies and labs. Every payment shows below.
+            <b>Held for care. Paid directly to verified hospitals, clinics and pharmacies.</b> Gifts are collected by licensed payment partners and paid only to verified medical providers, never to personal bank accounts. Every payment shows below. <a href="/terms#11">Care Fund terms</a>
           </section>
           <div className="fund-text">{p.story.split(/\n+/).map((para, i) => <p key={i}>{para}</p>)}</div>
 

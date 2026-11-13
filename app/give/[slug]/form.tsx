@@ -31,7 +31,7 @@ export function GiveForm({ slug, page, fund }: { slug: string; page: GivingPage;
   const [copied, setCopied] = useState(false)
   const key = useRef<{ for: string; key: string } | null>(null)
   const amount = Number(typed || 0) * 100
-  const big = page.details_over_kobo > 0 && amount > page.details_over_kobo
+  const big = page.details_over_kobo > 0 && amount >= page.details_over_kobo
 
   const give = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -78,7 +78,7 @@ export function GiveForm({ slug, page, fund }: { slug: string; page: GivingPage;
         <input id="g-email" className="field" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required />
         {big && (
           <>
-            <p className="give-note">For a gift over {naira(page.details_over_kobo, true)}, the law asks for your full name and phone. Only Zome sees them.</p>
+            <p className="give-note">For a gift of {naira(page.details_over_kobo, true)} or more, we ask for your full name and phone. Only Zome sees them.</p>
             <label className="label" htmlFor="g-full">Full name</label>
             <input id="g-full" className="field" autoComplete="name" value={fullName} onChange={e => setFullName(e.target.value)} required />
             <label className="label" htmlFor="g-phone">Phone</label>
@@ -87,7 +87,11 @@ export function GiveForm({ slug, page, fund }: { slug: string; page: GivingPage;
         )}
       </div>
       <div className="dash" />
-      <p className="give-note">{fund ? 'This money is held for care and paid only to clinics, pharmacies and labs. Every payment shows on this page.' : `This money is for ${page.first_name}’s care: clinics, pharmacies and labs. It can’t be taken out as cash.`}</p>
+      {fund ? <>
+        <p className="give-note"><b>Held for care. Paid directly to verified hospitals, clinics and pharmacies.</b> Gifts are collected by licensed payment partners and paid only to verified medical providers, never to personal bank accounts.</p>
+        <p className="give-note">A single transfer of ₦5,000,000 or more is checked by the bank first, so it can take a little longer to show.</p>
+        <p className="give-note">By giving, you agree to the <a href="/terms#11" target="_blank" rel="noopener">Care Fund terms</a>.</p>
+      </> : <p className="give-note">{`This money is for ${page.first_name}’s care: clinics, pharmacies and labs. It can’t be taken out as cash.`}</p>}
       {problem && <p className="err" role="alert">{problem}</p>}
       <button type="submit" className="btn wide lg give-go" disabled={busy || !amount || !name.trim() || !email.includes('@')}>{busy ? 'Setting up…' : amount ? `Give ${naira(amount, true)}` : 'Give'}</button>
       <div className="bars" aria-hidden="true" />

@@ -6,7 +6,7 @@ import type { Checklist } from '@/server/api'
 import { CheckIcon } from '../../icons'
 import { onTheWeb, SetupSheet } from '../setup'
 
-// The set-up checklist; every step can be done here.
+// The set-up checklist. Steps the web cannot do yet say so.
 export function Steps({ list }: { list: Checklist }) {
   const [open, setOpen] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
@@ -21,7 +21,7 @@ export function Steps({ list }: { list: Checklist }) {
           {s.state === 'waiting' && <span className="lbl">Checking</span>}
           {s.state === 'to_do' && (onTheWeb.has(s.id)
             ? <button type="button" className="btn small-btn" onClick={() => setOpen(s.id)}>Add</button>
-            : <span className="lbl">In the app</span>)}
+            : <span className="lbl">Coming soon</span>)}
         </div>
       ))}
       {open && <SetupSheet step={open} onClose={() => setOpen(null)} onDone={t => { setToast(t); setTimeout(() => setToast(null), 2600) }} />}

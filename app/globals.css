@@ -453,7 +453,7 @@ body { background: #FFFFFF; }
 
 /* Purse */
 .view.home { grid-template-columns: minmax(0, 1fr) 400px; gap: 48px; }
-.home-main { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.home-main { display: flex; flex-direction: column; gap: 24px; min-width: 0; isolation: isolate; }
 .hello-title { font-size: 22px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.2; margin: 0; }
 .hello-title span { color: var(--ink-3); font-weight: 400; }
 .bal { display: flex; flex-direction: column; gap: 6px; }
@@ -503,7 +503,7 @@ body { background: #FFFFFF; }
 .life.late .left { fill: var(--amber); }
 
 /* Next step: dark, paper stacked behind it */
-.feature { position: relative; color: #fff; background: #111318; border-radius: 20px; padding: 14px 16px; display: grid; grid-template-columns: 46px minmax(0, 1fr) 32px; gap: 14px; align-items: center; text-align: left; box-shadow: 0 14px 30px rgba(17,19,24,.18); margin-top: 12px; isolation: isolate; transition: scale .14s ease; }
+.feature { position: relative; color: #fff; background: #111318; border-radius: 20px; padding: 14px 16px; display: grid; grid-template-columns: 46px minmax(0, 1fr) 32px; gap: 14px; align-items: center; text-align: left; box-shadow: 0 14px 30px rgba(17,19,24,.18); margin-top: 12px; transition: scale .14s ease; }
 .feature:active { scale: .98; }
 .feature::before, .feature::after { content: ""; position: absolute; z-index: -1; border-radius: 18px; height: 24px; }
 .feature::before { inset: -10px 7% auto; background: #EEF0F3; }
@@ -547,3 +547,6 @@ body { background: #FFFFFF; }
 
 /* Purse's short strip of receipts */
 .tape.short .paper { padding-top: 22px; }
+
+/* The tab bar, white */
+@media (max-width: 999px) { .tabs { background: #FFFFFF; border-top: 1px solid var(--rule); } }

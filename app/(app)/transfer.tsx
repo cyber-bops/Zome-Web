@@ -17,7 +17,7 @@ import { Sheet } from './sheet'
 type Bank = { code: string; name: string }
 type Setup = { fee_kobo: number; minimum_kobo: number }
 export type Transfer = { id: string; amount_kobo: number; fee_kobo: number; total_kobo: number; bank_name: string; last4: string; account_name: string; note: string; status: string; reason?: string; created_at: string }
-const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
+const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 const statusWord: Record<string, string> = { starting: 'On its way', sent: 'On its way', paid: 'Arrived', failed: 'Sent back' }
 
 export function TransferFlow({ balance, onClose, onPaid, onBack }: { balance: number; onClose: () => void; onPaid: (t: string) => void; onBack: () => void }) {
@@ -67,7 +67,7 @@ export function TransferFlow({ balance, onClose, onPaid, onBack }: { balance: nu
     setProblem(null)
     try {
       const st = await call<{ set: boolean; locked_until?: string }>('vault/pin')
-      if (st.locked_until && Date.parse(st.locked_until) > Date.now()) { setProblem('Your PIN is locked for now after too many tries. Try again later.'); return }
+      if (st.locked_until && Date.parse(st.locked_until) > Date.now()) { setProblem('To keep your money safe, your PIN is paused after a few wrong tries. Please try again in a little while.'); return }
       setStep(st.set ? 'pin' : 'choose')
     } catch (e) { setProblem(words(e)) }
   }
@@ -87,11 +87,11 @@ export function TransferFlow({ balance, onClose, onPaid, onBack }: { balance: nu
     }
   }, [bank, number, amount, note, router, onPaid])
 
-  if (step === 'choose') return <PinSheet eyebrow="Payment PIN" title="Choose a PIN" lede={problem ?? 'Nothing leaves without your 4-digit PIN.'} onClose={onClose} onPin={async p => { setProblem(null); setFirst(p); setStep('again'); return null }} />
+  if (step === 'choose') return <PinSheet eyebrow="Payment PIN" title="Choose a PIN" lede={problem ?? 'Only you can approve a payment, with your 4-digit PIN.'} onClose={onClose} onPin={async p => { setProblem(null); setFirst(p); setStep('again'); return null }} />
   if (step === 'again') return (
-    <PinSheet eyebrow="Payment PIN" title="Enter it again" lede="To make sure it’s the one you meant." onClose={onClose} busyWord="Saving…"
+    <PinSheet eyebrow="Payment PIN" title="Enter it again" lede="Just to be sure it’s the one you meant." onClose={onClose} busyWord="Saving…"
       onPin={async p => {
-        if (p !== first) { setStep('choose'); setProblem('Those PINs didn’t match. Choose one again.'); return 'Those PINs didn’t match.' }
+        if (p !== first) { setStep('choose'); setProblem('Those two PINs were different. Let’s choose it again.'); return 'Those two PINs were different.' }
         try { await call('vault/pin', 'POST', { pin: p }); return await send(p) } catch (e) { setStep('choose'); return words(e) }
       }} />
   )

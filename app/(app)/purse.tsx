@@ -124,7 +124,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
       const c = await call<Code>('vault/pay-codes', 'POST', {})
       setCode(c); setCodeOpen(true)
     } catch (e) {
-      say(e instanceof Refused ? e.message : 'Couldn’t make a code. Try again.')
+      say(e instanceof Refused ? e.message : 'We couldn’t make a code just now. Please try again.')
     } finally { setBusy(false) }
   }, [])
 

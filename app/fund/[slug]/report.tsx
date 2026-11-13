@@ -11,15 +11,15 @@ export function Report({ slug }: { slug: string }) {
   const [state, setState] = useState<'idle' | 'busy' | 'sent'>('idle')
   const [problem, setProblem] = useState<string | null>(null)
 
-  if (state === 'sent') return <p className="fund-report small">Thank you. Zome’s team will look at this fund.</p>
+  if (state === 'sent') return <p className="fund-report small">Thank you for telling us. Someone from Zome will look into it.</p>
   if (!open) return <p className="fund-report"><button type="button" className="link-btn" onClick={() => setOpen(true)}>Report this fund</button></p>
   return (
     <form className="fund-report-form" onSubmit={async e => {
       e.preventDefault(); setState('busy'); setProblem(null)
       try { await call(`fund/${slug}/report`, 'POST', { reason, email }); setState('sent') }
-      catch (err) { setProblem(err instanceof Refused ? err.message : 'That didn’t go through. Try again.'); setState('idle') }
+      catch (err) { setProblem(err instanceof Refused ? err.message : 'That didn’t work this time. Please try again.'); setState('idle') }
     }}>
-      <label className="label" htmlFor="r-why">What’s wrong?</label>
+      <label className="label" htmlFor="r-why">What worries you about this fund?</label>
       <textarea id="r-why" className="field" rows={3} maxLength={1000} value={reason} onChange={e => setReason(e.target.value)} required />
       <label className="label" htmlFor="r-email">Your email (optional, if we may reply)</label>
       <input id="r-email" className="field" type="email" value={email} onChange={e => setEmail(e.target.value)} />

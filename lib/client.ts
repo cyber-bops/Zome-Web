@@ -33,6 +33,6 @@ export async function call<T>(path: string, method = 'GET', body?: unknown, extr
       : new Refused(0, 'Offline', 'Couldn’t reach Zome. Check your connection and try again.')
   }
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Refused(res.status, data.type ?? 'Error', data.message ?? 'Something went wrong. Try again.', data.until)
+  if (!res.ok) throw new Refused(res.status, data.type ?? 'Error', data.message ?? 'Sorry, something went wrong on our side. Please try again.', data.until)
   return data as T
 }

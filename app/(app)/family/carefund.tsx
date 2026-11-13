@@ -14,7 +14,7 @@ import { Sheet } from '../sheet'
 // Care Fund (ADR-0054), the organiser's side: start one, share it, pay a
 // provider from it, post updates, extend or close it. The money is held for
 // care: it leaves only as a payment to a business in the network.
-const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
+const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 const day = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 type Open = null | 'start' | 'pay' | 'update' | 'edit' | 'extend' | 'close' | 'more'
 
@@ -32,7 +32,7 @@ export function CareFundPanel({ data, origin, onSay }: { data: MyCareFund; origi
       <p>A public page with your story and a goal. Paid only to hospitals, clinics, pharmacies and labs.</p>
       {data.may_start
         ? <button type="button" className="btn lg" onClick={() => setOpen('start')}>Start a fundraiser</button>
-        : <p className="small">First finish setting up: BVN, NIN, selfie, phone and next of kin. <Link href="/profile" className="link-btn">Go to You</Link></p>}
+        : <p className="small">To keep givers safe, we need to know you first: your BVN, NIN, selfie, phone number and next of kin. <Link href="/profile" className="link-btn">Go to You</Link></p>}
       {open === 'start' && <StartSheet onClose={close} onDone={t => { close(); onSay(t); router.refresh() }} />}
     </div>
   )
@@ -75,7 +75,7 @@ export function CareFundPanel({ data, origin, onSay }: { data: MyCareFund; origi
       </div>
       <div>
         <p className="sec-h">Activity</p>
-        {activity.length === 0 ? <p className="none">No gifts yet.</p> : (
+        {activity.length === 0 ? <p className="none">No gifts yet. When family give, you’ll see it here.</p> : (
           <div className="cf-list">
             {activity.map((x, i) => (
               <div key={i} className="cf-row">

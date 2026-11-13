@@ -54,7 +54,7 @@ export function PinSheet({ eyebrow, title, lede, onPin, onClose, busyWord = 'Che
         <button type="button" onClick={() => press('0')}>0</button>
         <button type="button" aria-label="Delete" onClick={() => press('del')}>⌫</button>
       </div>
-      <p className="small center" role="status">{busy ? busyWord : problem ? <span className="err">{problem}</span> : 'Nothing leaves without your 4-digit PIN.'}</p>
+      <p className="small center" role="status">{busy ? busyWord : problem ? <span className="err">{problem}</span> : 'Only you can approve a payment, with your 4-digit PIN.'}</p>
     </Sheet>
   )
 }

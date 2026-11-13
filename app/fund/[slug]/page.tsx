@@ -35,7 +35,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
       <div className="tape"><div className="paper">
         <div className="ph"><ZomeMark /><b>THIS FUND ISN’T OPEN</b><span>CHECK THE LINK</span></div>
         <div className="dash" />
-        <p className="give-note">The link may be mistyped, or the fund may have been taken down.</p>
+        <p className="give-note">Please check the link with the person who sent it.</p>
       </div></div>
     </main>
   )
@@ -64,7 +64,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
           <div className="fund-text">{p.story.split(/\n+/).map((para, i) => <p key={i}>{para}</p>)}</div>
 
           <h2 className="fund-sub">Where the money went</h2>
-          {p.payments.length === 0 ? <p className="none">Nothing paid out yet. Each payment to a provider shows here.</p> : (
+          {p.payments.length === 0 ? <p className="none">Nothing paid out yet. Every payment to a hospital, clinic or pharmacy will show here.</p> : (
             <ul className="fund-list">{p.payments.map((x, i) => (
               <li key={i}><span className="grow"><b>{x.provider}</b> <span className="mut">· {day(x.at)}</span></span><span className="mono">{naira(x.amount_kobo, true)}</span><span className="paid-tag">PAID</span></li>
             ))}</ul>
@@ -87,9 +87,9 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
           {p.taking_gifts
             ? <GiveForm slug={s} fund={{ title: p.title }} page={{ first_name: p.organiser_first_name, last_initial: p.organiser_last_initial, minimum_kobo: p.minimum_kobo, details_over_kobo: p.details_over_kobo }} />
             : <div className="tape"><div className="paper">
-                <div className="ph"><ZomeMark /><b>{p.frozen ? 'PAUSED' : 'NOT TAKING GIFTS'}</b><span>{p.frozen ? 'ZOME IS LOOKING INTO A REPORT' : 'THIS FUND HAS CLOSED'}</span></div>
+                <div className="ph"><ZomeMark /><b>{p.frozen ? 'PAUSED' : 'NOT TAKING GIFTS'}</b><span>{p.frozen ? 'WE’RE CHECKING SOMETHING' : 'THIS FUND HAS CLOSED'}</span></div>
                 <div className="dash" />
-                <p className="give-note">{p.frozen ? 'Gifts and payments are paused while Zome checks this fund.' : 'Thank you to everyone who gave. What was raised is still paid only for care, and shows on this page.'}</p>
+                <p className="give-note">{p.frozen ? 'We’ve paused this fund while we check something. Gifts will open again once we’re done.' : 'Thank you to everyone who gave. What was raised is still used only for care, and every payment shows on this page.'}</p>
               </div></div>}
         </aside>
       </div>

@@ -25,7 +25,7 @@ export function ReceiptsView({ purse, name }: { purse: Purse | null; name: strin
         <p className="page-s">Tap any line for its receipt. Bills you pay are stamped.</p>
         <label className="search"><span className="lbl">Find</span><input id="find" value={q} onChange={e => setQ(e.target.value)} placeholder="Interest, 4,200…" autoComplete="off" /></label>
         <div className="list">
-          {rows.length === 0 ? <p className="none">{purse.movements.length ? 'No receipt matches that.' : 'Nothing yet. Money you add and pay shows here.'}</p>
+          {rows.length === 0 ? <p className="none">{purse.movements.length ? 'No receipt matches that.' : 'Nothing yet. When you add or pay, your receipts will show here.'}</p>
             : rows.map((m, i) => {
               const st = movementStamp(m)
               return (

@@ -12,7 +12,7 @@ import { Sheet } from '../sheet'
 
 // Family (ADR-0053 §6): the link that lets family give to the purse, and
 // what they gave. Gifts are for care only, and spent before Care Purse.
-const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go through. Try again.'
+const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t work this time. Please try again.'
   : e.status === 404 ? 'The family link isn’t available right now.' : e.message
 const day = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 
@@ -55,7 +55,7 @@ export function FamilyView({ link, origin, first, gifts, open, fund, mode }: { l
         <Link href="/care-fund?mode=public" role="tab" aria-selected={mode === 'public'} scroll={false}>Public</Link>
       </div>
 
-      {mode === 'public' ? (open && fund ? <CareFundPanel data={fund} origin={origin} onSay={say} /> : <div className="cf-empty"><b>Care Fund isn’t open to you yet</b></div>)
+      {mode === 'public' ? (open && fund ? <CareFundPanel data={fund} origin={origin} onSay={say} /> : <div className="cf-empty"><b>Care Fund isn’t ready for you yet. We’ll let you know when it is.</b></div>)
       : !open ? <div className="cf-empty"><b>Care Purse isn’t open to you yet</b></div>
       : !link ? (
         <div className="cf-empty">
@@ -81,7 +81,7 @@ export function FamilyView({ link, origin, first, gifts, open, fund, mode }: { l
           </div>
           <div>
             <p className="sec-h">Gifts</p>
-            {gifts.length === 0 ? <p className="none">No gifts yet.</p> : (
+            {gifts.length === 0 ? <p className="none">No gifts yet. When family give, you’ll see it here.</p> : (
               <div className="cf-list">
                 {gifts.map((m, i) => {
                   const who = m.from && m.from !== 'Anonymous' ? m.from : 'Anonymous'

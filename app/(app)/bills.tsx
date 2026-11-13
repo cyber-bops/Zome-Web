@@ -11,7 +11,7 @@ import { Sheet } from './sheet'
 // the PIN, or decline it. It waits until then, or until it runs out.
 
 export type Bill = { id: string; receipt: string; merchant: string; category: string; amount_kobo: number; note: string; status: string; created_at: string; expires_at: string }
-const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
+const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 
 export function BillCard({ bill, onOpen }: { bill: Bill; onOpen: () => void }) {
   return (

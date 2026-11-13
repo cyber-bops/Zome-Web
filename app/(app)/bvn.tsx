@@ -10,7 +10,7 @@ import { Sheet } from './sheet'
 // bank has for it (ADR-0052 §16). The legal name comes from the record.
 
 type Rec = { first_name: string; middle_name?: string; last_name: string; date_of_birth?: string; phone: string; confirmation: string }
-const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go through. Try again.'
+const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t work this time. Please try again.'
   // The API answers a bare 404 when identity checks are switched off.
   : e.status === 404 ? 'Adding a BVN isn’t available right now. Try again later.' : e.message
 const born = (d?: string) => d ? new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(d + 'T00:00:00Z')) : ''

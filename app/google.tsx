@@ -43,7 +43,7 @@ export function backFromGoogle(): { grant?: GoogleGrant; problem?: string; from?
   history.replaceState(null, '', location.pathname + location.search)
   let pending: Pending | null = null
   try { pending = JSON.parse(sessionStorage.getItem(KEY) ?? 'null'); sessionStorage.removeItem(KEY) } catch { /* none */ }
-  if (!pending || back.get('state') !== pending.state) return { problem: 'That Google sign-in didn’t start here. Try again.' }
+  if (!pending || back.get('state') !== pending.state) return { problem: 'That sign-in didn’t come from this page. Please try again.' }
   if (back.get('error')) return { from: pending.from, problem: back.get('error') === 'access_denied' ? undefined : 'Google didn’t sign you in. Try again.' }
   const idToken = back.get('id_token') ?? ''
   const c = claims(idToken)

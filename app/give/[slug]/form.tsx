@@ -9,7 +9,7 @@ import { ZomeMark } from '../../mark'
 export type GivingPage = { first_name: string; last_initial: string; minimum_kobo: number; details_over_kobo: number }
 type Opened = { amount_kobo: number; fee_kobo: number; total_kobo: number; bank_name: string; account_number: string; account_name: string; expires_at: string }
 const QUICK = [2000, 5000, 10000, 20000]
-const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
+const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 const lagos = (iso: string) => new Intl.DateTimeFormat('en-NG', { hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 
 // The gift, written on a receipt: how much, from whom, a note, where the

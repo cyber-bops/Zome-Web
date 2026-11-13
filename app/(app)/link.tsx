@@ -14,7 +14,7 @@ import { Sheet } from './sheet'
 // fund in one tap, save automatically, or unlink.
 
 type Bank = { code: string; name: string }
-const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go through. Try again.'
+const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t work this time. Please try again.'
   : e.status === 404 ? 'Linking a bank account isn’t available right now.' : e.message
 const stateWord: Record<string, string> = {
   opening: 'Waiting for your bank', awaiting_authorisation: 'Make a transfer', active: 'Linked', suspended: 'Paused by your bank',
@@ -35,7 +35,7 @@ function Authorise({ m, onClose }: { m: Mandate; onClose: () => void }) {
           <button type="button" className="copy" onClick={() => navigator.clipboard?.writeText(m.authorisation.account_number ?? '').then(() => setCopied(true), () => {})}>{copied ? 'Copied' : 'Copy'}</button></dd></div>}
         <div><dt>From</dt><dd>{m.bank_name} ··{m.account_number.slice(-4)}</dd></div>
       </dl>
-      <p className="small">Your bank is approving the link. This can take up to 3 days.</p>
+      <p className="small">Your bank is approving the link. This can take up to 3 days, and we’ll let you know.</p>
     </Sheet>
   )
 }
@@ -72,7 +72,7 @@ export function LinkSheet({ onClose, onDone }: { onClose: () => void; onDone: (t
     catch (e) { setProblem(words(e)) } finally { setBusy(false) }
   }
 
-  if (made) return <Authorise m={made} onClose={() => { onClose(); onDone('Your bank is approving the link') }} />
+  if (made) return <Authorise m={made} onClose={() => { onClose(); onDone('Your bank is still approving it') }} />
   return (
     <Sheet eyebrow="Fund in one tap" title="Link your bank account" lede="Fund your purse in one tap, and save automatically when you want to. You can unlink any time." onClose={onClose}
       foot={<><button type="button" className="btn soft" onClick={onClose}>Cancel</button><button type="button" className="btn" disabled={busy || !name} onClick={link}>{busy ? 'Linking…' : name ? 'Confirm it’s your account' : 'Continue'}</button></>}>

@@ -12,7 +12,7 @@ import { Sheet } from './sheet'
 // /v1/me/selfie, /v1/me/phone/code and /confirm, /v1/me/next-of-kin.
 
 export const onTheWeb = new Set(['bvn', 'nin', 'selfie', 'phone', 'next_of_kin', 'bank_account'])
-const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go through. Try again.'
+const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t work this time. Please try again.'
   : e.status === 404 ? 'This isn’t available right now. Try again later.' : e.message
 
 type Done = (t: string) => void
@@ -107,7 +107,7 @@ function SelfieSheet({ onClose, onDone }: { onClose: () => void; onDone: Done })
   const pick = async (f?: File) => {
     if (!f) return
     setProblem(null)
-    try { setPhoto(await jpeg720(f)) } catch { setProblem('That photo couldn’t be read. Try another.') }
+    try { setPhoto(await jpeg720(f)) } catch { setProblem('We couldn’t see your face clearly. Please try again in good light.') }
   }
   const send = async () => {
     if (!photo) return

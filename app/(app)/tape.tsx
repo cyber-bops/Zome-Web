@@ -32,7 +32,7 @@ export function Tape({ movements, balance, name, title = 'ZOME CARE PURSE', filt
         {!latest && <><div className="ph"><ZomeMark /><b>{title}</b><span>{name ? `${name.toUpperCase()} · ` : ''}{month}</span></div>
         <div className="dash" /></>}
         <div className="lines">
-          {shown.length === 0 ? <p className="none">{movements.length ? 'Nothing here.' : 'Nothing yet. Money you add and pay prints here.'}</p>
+          {shown.length === 0 ? <p className="none">{movements.length ? 'Nothing here.' : 'Nothing yet. When you add or pay, your receipts will show here.'}</p>
             : shown.map((m, i) => {
               const st = movementStamp(m)
               return (

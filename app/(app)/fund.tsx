@@ -19,7 +19,7 @@ import { HangingTicket } from './ticket'
 const MAX_NAIRA = 5_000_000
 const QUICK = [2000, 5000, 10000, 20000]
 const lagosTime = (iso: string) => new Intl.DateTimeFormat('en-NG', { hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Lagos' }).format(new Date(iso))
-const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
+const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 type Way = 'debit' | 'transfer'
 type Debit = { id: string; state: string; amount_kobo: number; fee_kobo: number; total_kobo: number }
 
@@ -68,7 +68,7 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
 
   const go = async () => {
     if (way === 'debit' && !live) { if (!waiting && !paused) onLink?.(); return }
-    if (amount < 100) { setProblem('Add at least ₦100.'); return }
+    if (amount < 100) { setProblem('The smallest amount you can add is ₦100.'); return }
     setBusy(true); setProblem(null)
     try {
       if (way === 'debit') {
@@ -88,14 +88,14 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
       foot={<button type="button" className="btn span" onClick={() => { onClose(); onDone?.(`${naira(debit.amount_kobo)} on its way from ${linked.bank_name}`) }}>Done</button>}>
       <HangingTicket eyebrow="ADDED" headline="Added." stamp="ADDED" green
         fields={[['From', `${linked.bank_name} ··${linked.account_number.slice(-4)}`], ['Into', 'Care Purse']]}
-        reference={debit.id.slice(0, 8).toUpperCase()} title="On its way"
+        reference={debit.id.slice(0, 8).toUpperCase()} title="On its way to your Care Purse"
         cells={[{ k: 'Amount', v: naira(debit.amount_kobo) }, { k: 'Fee', v: naira(debit.fee_kobo) }]} />
     </Sheet>
   )
 
   if (topUp) return (
     <Sheet eyebrow="Add money" title="Send a transfer" onClose={onClose}
-      lede={topUp.account_number ? undefined : 'Setting up your account details. They’ll show on your purse shortly.'}
+      lede={topUp.account_number ? undefined : 'We’re getting the account ready. It will show on your purse in a moment.'}
       foot={<button type="button" className="btn span" onClick={onClose}>Done</button>}>
       {topUp.account_number && (
         <>
@@ -107,16 +107,16 @@ export function FundSheet({ onClose, onVerify, onLink, linked, onDone }: {
             <div><dt>Name</dt><dd>{topUp.account_name}</dd></div>
             {topUp.fee_kobo > 0 && <div><dt>Includes fee</dt><dd>{naira(topUp.fee_kobo)}</dd></div>}
           </dl>
-          <p className="clock"><span>One transfer only</span><span>Valid until {lagosTime(topUp.expires_at)}</span></p>
+          <p className="clock"><span>Send it in one transfer</span><span>Valid until {lagosTime(topUp.expires_at)}</span></p>
         </>
       )}
     </Sheet>
   )
 
   const debitLine = live ? `${linked!.bank_name} ··${linked!.account_number.slice(-4)}`
-    : waiting ? 'Your bank is approving the link'
+    : waiting ? 'Your bank is still approving it'
     : paused ? 'Paused by your bank'
-    : 'Link it first'
+    : 'Link your bank to use this'
   const goWord = busy ? (way === 'debit' ? 'Adding…' : 'Setting up…')
     : way === 'debit' && !live ? (waiting || paused ? 'Waiting for your bank' : 'Link your bank account')
     : way === 'debit' ? (amount ? `Add ${naira(amount * 100, true)} now` : 'Add money') : 'Continue'

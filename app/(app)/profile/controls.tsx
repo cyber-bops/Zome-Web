@@ -20,7 +20,7 @@ export function AccountActions() {
       router.replace('/sign-in')
       router.refresh()
     } catch (e) {
-      setProblem(e instanceof Refused ? e.message : 'That didn’t go through. Try again.')
+      setProblem(e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.')
       setBusy(null)
     }
   }

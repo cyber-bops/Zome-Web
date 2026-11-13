@@ -16,7 +16,7 @@ import { HangingTicket } from './ticket'
 
 export type Merchant = { id: string; name: string; category: string; address: string; hospital?: boolean; bank?: string; fee?: number }
 type Paid = { bill: { receipt: string; merchant: string; amount_kobo: number; created_at: string }; cashback_kobo: number; fee_kobo?: number; sending?: boolean }
-const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t go through. Try again.'
+const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 const initials = (n: string) => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
 
 /** `fund`: pay from a Care Fund instead of Care Purse (ADR-0054); only businesses in the network. */
@@ -54,12 +54,12 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
   }, [q, step])
 
   const toAmount = async () => {
-    if (amount < 10000) { setProblem('Pay at least ₦100.'); return }
-    if (amount + (to?.hospital ? to.fee ?? 0 : 0) > balance) { setProblem(fund ? `The fund has ${naira(balance)}.` : `Your Care Purse has ${naira(balance)}. Fund it first.`); return }
+    if (amount < 10000) { setProblem('The smallest payment is ₦100.'); return }
+    if (amount + (to?.hospital ? to.fee ?? 0 : 0) > balance) { setProblem(fund ? `The fund has ${naira(balance)}.` : `You have ${naira(balance)} in your Care Purse. Add money first, then pay.`); return }
     setProblem(null)
     try {
       const st = await call<{ set: boolean; locked_until?: string }>('vault/pin')
-      if (st.locked_until && Date.parse(st.locked_until) > Date.now()) { setProblem('Your PIN is locked for now after too many tries. Try again later.'); return }
+      if (st.locked_until && Date.parse(st.locked_until) > Date.now()) { setProblem('To keep your money safe, your PIN is paused after a few wrong tries. Please try again in a little while.'); return }
       setStep(st.set ? 'pin' : 'choose')
     } catch (e) { setProblem(words(e)) }
   }
@@ -71,7 +71,7 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
     try {
       if (fund && to.hospital) {
         const t = await call<{ transfer: { id: string; amount_kobo: number; fee_kobo: number; status: string; reason?: string; created_at: string } }>(`me/care-fund/${fund.id}/pay-hospital/${to.id}`, 'POST', { amount_kobo: amount, pin, note: note.trim() }, { 'Idempotency-Key': key.current.key })
-        if (t.transfer.status === 'failed') { setProblem(t.transfer.reason || 'The bank couldn’t take it. The money is back in the fund.'); setStep('amount'); return null }
+        if (t.transfer.status === 'failed') { setProblem(t.transfer.reason || 'The hospital’s bank couldn’t accept it. Don’t worry, the money is back in the fund.'); setStep('amount'); return null }
         setPaid({ bill: { receipt: t.transfer.id.slice(0, 8).toUpperCase(), merchant: to.name, amount_kobo: t.transfer.amount_kobo, created_at: t.transfer.created_at }, cashback_kobo: 0, fee_kobo: t.transfer.fee_kobo, sending: t.transfer.status !== 'paid' })
         setStep('paid'); router.refresh(); onPaid(`${naira(t.transfer.amount_kobo)} on its way to ${to.name}`)
         return null
@@ -88,13 +88,13 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
 
   if (step === 'bank') return <TransferFlow balance={balance} onClose={onClose} onPaid={onPaid} onBack={() => setStep('find')} />
   if (step === 'choose') return (
-    <PinSheet eyebrow="Payment PIN" title="Choose a PIN" lede={problem ?? 'Nothing leaves without your 4-digit PIN.'} onClose={onClose}
+    <PinSheet eyebrow="Payment PIN" title="Choose a PIN" lede={problem ?? 'Only you can approve a payment, with your 4-digit PIN.'} onClose={onClose}
       onPin={async p => { setProblem(null); setFirst(p); setStep('again'); return null }} />
   )
   if (step === 'again') return (
-    <PinSheet eyebrow="Payment PIN" title="Enter it again" lede="To make sure it’s the one you meant." onClose={onClose} busyWord="Saving…"
+    <PinSheet eyebrow="Payment PIN" title="Enter it again" lede="Just to be sure it’s the one you meant." onClose={onClose} busyWord="Saving…"
       onPin={async p => {
-        if (p !== first) { setStep('choose'); setProblem('Those PINs didn’t match. Choose one again.'); return 'Those PINs didn’t match.' }
+        if (p !== first) { setStep('choose'); setProblem('Those two PINs were different. Let’s choose it again.'); return 'Those two PINs were different.' }
         try { await call('vault/pin', 'POST', { pin: p }); return await pay(p) } catch (e) { setStep('choose'); return words(e) }
       }} />
   )
@@ -106,7 +106,7 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
       foot={<button type="button" className="btn span" onClick={onClose}>Done</button>}>
       <HangingTicket eyebrow={paid.sending ? 'SENT' : 'PAID'} headline={paid.sending ? 'On its way.' : 'Paid.'} stamp={paid.sending ? undefined : 'PAID'}
         fields={[['Receipt', paid.bill.receipt], ['Date', new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(paid.bill.created_at))]]}
-        reference={paid.bill.receipt} title={paid.sending ? 'On its way to the bank' : 'Paid'}
+        reference={paid.bill.receipt} title={paid.sending ? 'On its way to the hospital’s bank' : 'Paid. Thank you.'}
         cells={[
           { k: 'To', v: paid.bill.merchant, full: true },
           { k: 'Amount', v: naira(paid.bill.amount_kobo) },
@@ -140,14 +140,14 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
     </div>
   )
   return (
-    <Sheet eyebrow={fund ? 'Pay from the fund' : 'Pay a bill'} title="Find the provider" onClose={onClose}
-      foot={fund ? undefined : <button type="button" className="btn soft span" onClick={() => setStep('bank')}>Outside the network: pay a bank account</button>}>
+    <Sheet eyebrow={fund ? 'Pay from the fund' : 'Pay a bill'} title="Who are you paying?" onClose={onClose}
+      foot={fund ? undefined : <button type="button" className="btn soft span" onClick={() => setStep('bank')}>Not on Zome? Pay their bank account</button>}>
       <label className="search"><span className="lbl">Find</span>
         <input id="pay-find" value={q} onChange={e => { setProblem(null); setQ(e.target.value) }} placeholder="Clinic, pharmacy or lab" autoFocus autoComplete="off" /></label>
       <div className="pick">
         {!q.trim() ? <p className="none">Type the name of a clinic, pharmacy or lab.</p>
           : list === null ? <p className="none">Looking…</p>
-          : list.length === 0 ? <p className="none">No one on Zome by that name yet.</p>
+          : list.length === 0 ? <p className="none">We can’t find them on Zome yet. Check the spelling, or try another name.</p>
           : list.map(m => (
             <button key={m.id} type="button" onClick={() => { setTo(m); setStep('amount') }}>
               <span className="pin">{initials(m.name)}</span>

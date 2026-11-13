@@ -24,7 +24,7 @@ const CODE = 6
 const PASSWORD_MIN = 8
 
 function words(err: unknown): string {
-  return err instanceof Refused ? err.message : 'That didn’t go through. Try again.'
+  return err instanceof Refused ? err.message : 'That didn’t work this time. Please try again.'
 }
 
 const looksLikeEmail = (e: string) => {
@@ -119,7 +119,7 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
   const sendCode = (e?: React.FormEvent) => {
     e?.preventDefault()
     if (!looksLikeEmail(email)) {
-      setProblem(email.trim() ? 'That doesn’t look like an email address.' : 'Enter your email address first, and we’ll send you a code.')
+      setProblem(email.trim() ? 'That email doesn’t look quite right. Please check it.' : 'Enter your email address first, and we’ll send you a code.')
       return
     }
     run(async () => {
@@ -172,7 +172,7 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
 
   const passwordProblem = !password ? null
     : password.length < PASSWORD_MIN ? `Use at least ${PASSWORD_MIN} characters.`
-    : again && again !== password ? 'Those two don’t match.' : null
+    : again && again !== password ? 'The two passwords are different.' : null
   const digits = code.slice(0, CODE)
   const stepsOf = mode === 'create' && !viaGoogle ? 3 : 2
   const at = step === 'choose' ? 1 : step === 'code' ? 2 : viaGoogle ? 2 : 3

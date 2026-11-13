@@ -100,3 +100,11 @@ test('the giving page needs no session and carries its key; the person’s link 
   assert.equal(sessionless('me/gift-link'), false)
   assert.deepEqual(passedHeaders('give/ada-k7m2qx', new Headers({ 'Idempotency-Key': 'web-3' })), { 'Idempotency-Key': 'web-3' })
 })
+
+test('a fund finds confirmed hospitals by name, and pays one with a key', () => {
+  const f = '0b6f2c1e-1a2b-4c3d-8e9f-001122334455'
+  assert.equal(isAllowed('GET', 'me/care-fund/hospitals'), true)
+  assert.equal(passedQuery('me/care-fund/hospitals', new URLSearchParams({ q: 'lagoon', x: 'y' })), '?q=lagoon')
+  assert.equal(isAllowed('POST', `me/care-fund/${f}/pay-hospital/${f}`), true)
+  assert.deepEqual(passedHeaders(`me/care-fund/${f}/pay-hospital/${f}`, new Headers({ 'Idempotency-Key': 'web-9' })), { 'Idempotency-Key': 'web-9' })
+})

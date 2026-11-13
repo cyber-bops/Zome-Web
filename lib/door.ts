@@ -19,6 +19,8 @@ const allowed: Array<[string, RegExp]> = [
   ['PATCH', new RegExp(`^me/care-fund/${id}$`)],
   ['POST', new RegExp(`^me/care-fund/${id}/(updates|extend|close)$`)],
   ['POST', new RegExp(`^me/care-fund/${id}/pay/${id}$`)],
+  ['GET', /^me\/care-fund\/hospitals$/],
+  ['POST', new RegExp(`^me/care-fund/${id}/pay-hospital/${id}$`)],
   ['GET', /^fund\/[a-z0-9-]{6,40}$/],
   ['POST', /^fund\/[a-z0-9-]{6,40}$/],
   ['POST', /^fund\/[a-z0-9-]{6,40}\/report$/],
@@ -68,7 +70,7 @@ export const signsIn = (path: string) => path === 'auth/verify' || path === 'aut
 export const sessionless = (path: string) => path === 'auth/start' || path.startsWith('give/') || path.startsWith('fund/') || signsIn(path)
 
 /** Anything that moves money carries an Idempotency-Key, so a retry never pays twice. */
-const keyed = (path: string) => path === 'vault/top-ups' || path.startsWith('give/') || /^fund\/[a-z0-9-]+$/.test(path) || /^me\/care-fund\/[0-9a-f-]+\/pay\//.test(path) || path === 'vault/transfers' || path === 'vault/debits' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
+const keyed = (path: string) => path === 'vault/top-ups' || path.startsWith('give/') || /^fund\/[a-z0-9-]+$/.test(path) || /^me\/care-fund\/[0-9a-f-]+\/pay(-hospital)?\//.test(path) || path === 'vault/transfers' || path === 'vault/debits' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)
 
 /** The one header passed on from the browser: the Idempotency-Key of a payment. */
 export function passedHeaders(path: string, given: Headers): Record<string, string> {
@@ -78,7 +80,7 @@ export function passedHeaders(path: string, given: Headers): Record<string, stri
 
 /** The query a route may carry: the search words for the network's businesses, nothing else. */
 export function passedQuery(path: string, given: URLSearchParams): string {
-  if (path !== 'vault/merchants') return ''
+  if (path !== 'vault/merchants' && path !== 'me/care-fund/hospitals') return ''
   const q = given.get('q')?.trim().slice(0, 80)
   return q ? `?${new URLSearchParams({ q })}` : ''
 }

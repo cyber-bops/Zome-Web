@@ -15,20 +15,22 @@ const day = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: '2-digit', 
 const signed = (k: number) => (k > 0 ? '+' : '−') + naira(Math.abs(k)).slice(1)
 export type Filter = 'all' | 'in' | 'out'
 
-export function Tape({ movements, balance, name, title = 'ZOME CARE PURSE', filter = 'all', onlyIn }: {
-  movements: Movement[]; balance: number; name: string; title?: string; filter?: Filter; onlyIn?: boolean
+/** `latest`: only the newest lines, without the heading and totals (Purse's short strip). */
+export function Tape({ movements, balance, name, title = 'ZOME CARE PURSE', filter = 'all', onlyIn, latest }: {
+  movements: Movement[]; balance: number; name: string; title?: string; filter?: Filter; onlyIn?: boolean; latest?: number
 }) {
   const [open, setOpen] = useState<Movement | null>(null)
   const f: Filter = onlyIn ? 'in' : filter
-  const shown = movements.filter(m => f === 'all' || (f === 'in' ? m.amount_kobo > 0 : m.amount_kobo < 0))
+  const all = movements.filter(m => f === 'all' || (f === 'in' ? m.amount_kobo > 0 : m.amount_kobo < 0))
+  const shown = latest ? all.slice(0, latest) : all
   const inn = movements.filter(m => m.amount_kobo > 0).reduce((a, m) => a + m.amount_kobo, 0)
   const out = movements.filter(m => m.amount_kobo < 0).reduce((a, m) => a + m.amount_kobo, 0)
   const month = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: zone }).format(new Date()).toUpperCase()
   return (
     <>
-      <div className="tape"><div className="paper">
-        <div className="ph"><ZomeMark /><b>{title}</b><span>{name ? `${name.toUpperCase()} · ` : ''}{month}</span></div>
-        <div className="dash" />
+      <div className={`tape${latest ? ' short' : ''}`}><div className="paper">
+        {!latest && <><div className="ph"><ZomeMark /><b>{title}</b><span>{name ? `${name.toUpperCase()} · ` : ''}{month}</span></div>
+        <div className="dash" /></>}
         <div className="lines">
           {shown.length === 0 ? <p className="none">{movements.length ? 'Nothing here.' : 'Nothing yet. Money you add and pay prints here.'}</p>
             : shown.map((m, i) => {
@@ -43,14 +45,14 @@ export function Tape({ movements, balance, name, title = 'ZOME CARE PURSE', filt
               )
             })}
         </div>
-        <div className="dash" />
+        {!latest && <><div className="dash" />
         <div className="tot">
           <span className="k">IN</span><span>{inn ? signed(inn) : '0.00'}</span>
           <span className="k">OUT</span><span>{out ? signed(out) : '0.00'}</span>
           <span className="k btk">BALANCE</span><span className="bt">{naira(balance)}</span>
-        </div>
+        </div></>}
         <div className="bars" aria-hidden="true" />
-        <p className="pf">KEPT FOR CARE</p>
+        {!latest && <p className="pf">KEPT FOR CARE</p>}
       </div></div>
       {open && <Receipt m={open} onClose={() => setOpen(null)} />}
     </>

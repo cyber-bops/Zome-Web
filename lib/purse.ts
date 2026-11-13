@@ -34,3 +34,20 @@ export function balanceLine(balance: number, movements: Moved[], days = 30, now 
   }
   return out.reverse()
 }
+
+/**
+ * What has been paid out so far this month, day by day: one running total for
+ * each day from the 1st to today, for the spending chart.
+ */
+export function spentThisMonth(movements: Moved[], now = new Date()): number[] {
+  const m = month(now)
+  const day = (d: Date) => Number(new Intl.DateTimeFormat('en-GB', { day: 'numeric', timeZone: 'Africa/Lagos' }).format(d))
+  const today = day(now)
+  const per = new Array(today).fill(0)
+  for (const x of movements) {
+    const at = new Date(x.at)
+    if (x.amount_kobo < 0 && month(at) === m) per[Math.min(today, day(at)) - 1] -= x.amount_kobo
+  }
+  let run = 0
+  return per.map(v => (run += v))
+}

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { balanceLine, monthTotals } from './purse.ts'
+import { balanceLine, monthTotals, spentThisMonth } from './purse.ts'
 
 const now = Date.parse('2026-11-20T12:00:00Z')
 const day = 864e5
@@ -27,4 +27,15 @@ test('the month counts money in, out and interest apart', () => {
 test('no movements: a flat line and nothing this month', () => {
   assert.deepEqual(balanceLine(0, [], 3, now), [0, 0, 0])
   assert.deepEqual(monthTotals([], new Date(now)), { in: 0, out: 0, interest: 0 })
+})
+
+test('spending this month runs day by day, payments only', () => {
+  const now = new Date('2026-11-05T12:00:00+01:00')
+  const line = spentThisMonth([
+    { kind: 'payment', amount_kobo: -50000, at: '2026-11-02T09:00:00+01:00' },
+    { kind: 'top_up', amount_kobo: 900000, at: '2026-11-03T09:00:00+01:00' },
+    { kind: 'payment', amount_kobo: -20000, at: '2026-11-04T09:00:00+01:00' },
+    { kind: 'payment', amount_kobo: -99999, at: '2026-10-30T09:00:00+01:00' },
+  ], now)
+  assert.deepEqual(line, [0, 50000, 50000, 70000, 70000])
 })

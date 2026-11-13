@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { ZomeMark } from '../mark'
 
 // The ticket that drops in on a string when money moves: paid, added. A
-// punched hole, the side notches, a dark panel, the receipt's fields, an
+// punched hole, a dark panel, the receipt's fields, an
 // inked stamp, a barcode and a torn edge. Then the plain confirmation, with
 // the details in one solid block of split cells.
 

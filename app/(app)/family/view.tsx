@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { call, Refused } from '@/lib/client'
@@ -14,7 +15,12 @@ const words = (e: unknown) => !(e instanceof Refused) ? 'That didn’t go throug
   : e.status === 404 ? 'The family link isn’t available right now.' : e.message
 const day = (iso: string) => new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' }).format(new Date(iso))
 
-export function FamilyView({ link, origin, first, gifts, open, fund }: { link: GiftLink | null; origin: string; first: string; gifts: Movement[]; open: boolean; fund: MyCareFund | null }) {
+export type CareFundMode = 'family' | 'public'
+
+// Care Fund, two setups (owner, 13 November 2026): Family, the private link
+// whose gifts land in Care Purse; Public, the health fundraiser with its own
+// page, held for care and paid only to providers (ADR-0054).
+export function FamilyView({ link, origin, first, gifts, open, fund, mode }: { link: GiftLink | null; origin: string; first: string; gifts: Movement[]; open: boolean; fund: MyCareFund | null; mode: CareFundMode }) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [problem, setProblem] = useState<string | null>(null)
@@ -37,10 +43,14 @@ export function FamilyView({ link, origin, first, gifts, open, fund }: { link: G
   return (
     <div className="view">
       <div>
-        <p className="lbl">Family</p>
-        <h1 className="page-h">Let family add to your care.</h1>
-        <p className="page-s">Anyone with your link can give by bank transfer, without a Zome account. Gifts can only be spent on care, and are spent before your own money.</p>
-        {!open ? <div className="card"><h2>Care Purse isn’t open to you yet</h2></div> : link ? (
+        <h1 className="page-h">Care Fund</h1>
+        <div className="segmented" role="tablist" aria-label="Care Fund">
+          <Link href="/care-fund?mode=family" role="tab" aria-selected={mode === 'family'} scroll={false}>Family</Link>
+          <Link href="/care-fund?mode=public" role="tab" aria-selected={mode === 'public'} scroll={false}>Public</Link>
+        </div>
+        <p className="mode-line">{mode === 'family' ? 'A private link for family. Gifts go into your Care Purse, for care.' : 'A fundraiser with its own page. Paid only to hospitals, clinics, pharmacies and labs.'}</p>
+        {mode === 'public' ? (open && fund ? <CareFundPanel data={fund} origin={origin} onSay={say} /> : <div className="card"><h2>Care Fund isn’t open to you yet</h2></div>)
+        : !open ? <div className="card"><h2>Care Purse isn’t open to you yet</h2></div> : link ? (
           <section className="envelope">
             <p className="lbl">Your link</p>
             <div className="url"><span className="mono">{url.replace(/^https?:\/\//, '')}</span>
@@ -61,16 +71,15 @@ export function FamilyView({ link, origin, first, gifts, open, fund }: { link: G
           </section>
         )}
         {problem && <p className="err" role="alert">{problem}</p>}
-        {open && fund && <CareFundPanel data={fund} origin={origin} onSay={say} />}
       </div>
-      <div>
+      {mode === 'family' && <div>
         <section className="sheet-paper">
-          <p className="lbl">Gifts · {naira(given)} in all</p>
+          <p className="lbl">Gifts · {naira(given, true)} in all</p>
           {gifts.length === 0 ? <p className="none">No gifts yet. They show here as they arrive.</p> : gifts.map((m, i) => (
             <div key={i} className="step done"><span className="grow"><b>{m.from && m.from !== 'Anonymous' ? m.from : 'Anonymous'}</b> <span className="mut">· {day(m.at)}</span></span><span className="mono in">+{naira(m.amount_kobo)}</span></div>
           ))}
         </section>
-      </div>
+      </div>}
       {toast && <div className="toast" role="status">{toast}</div>}
       {ask === 'replace' && (
         <Sheet eyebrow="Family link" title="Make a new link?" lede="Your old link stops working at once. Anyone who has it will see that it’s closed." onClose={() => setAsk(null)}

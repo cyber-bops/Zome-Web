@@ -192,7 +192,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
             </span>
             <Spark line={spent} />
           </Link>
-          <Link href="/family" className="tile">
+          <Link href="/care-fund?mode=family" className="tile">
             <span className="ic a"><HeartIcon /></span>
             <span className="t">From family</span>
             <span className="num">{naira(given, true)}</span>
@@ -204,7 +204,7 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
           ? <button type="button" className="feature" onClick={() => { setStepId(next.id); setSheet('step') }}>{nextStep}</button>
           : <Link href="/profile" className="feature">{nextStep}</Link>)}
         {f && (
-          <Link href="/family" className="envelope fund-card">
+          <Link href="/care-fund?mode=public" className="envelope fund-card">
             <span className="lbl">Care Fund</span>
             <b className="fund-t">{f.title}</b>
             <span className="meter"><i className={`w${Math.round(Math.min(100, (f.raised_kobo / Math.max(1, f.goal_kobo)) * 100) / 5) * 5}`} /></span>

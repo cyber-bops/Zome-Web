@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 const pages = [
   { href: '/', label: 'Purse' },
   { href: '/receipts', label: 'Receipts' },
-  { href: '/family', label: 'Family' },
+  { href: '/care-fund', label: 'Care Fund' },
   { href: '/profile', label: 'You' },
 ]
 const isOn = (path: string, href: string) => (href === '/' ? path === '/' : path.startsWith(href))

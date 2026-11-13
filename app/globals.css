@@ -503,14 +503,16 @@ body { background: #FFFFFF; }
 .life.late .left { fill: var(--amber); }
 
 /* Next step: dark, paper stacked behind it */
-.feature { position: relative; color: #fff; background: #111318; border-radius: 20px; padding: 14px 16px; display: grid; grid-template-columns: 46px minmax(0, 1fr) 32px; gap: 14px; align-items: center; text-align: left; box-shadow: 0 14px 30px rgba(17,19,24,.18); margin-top: 12px; transition: scale .14s ease; }
+.feature { position: relative; color: #fff; background: #111318; border-radius: 22px; padding: 20px 20px; min-height: 96px; display: grid; grid-template-columns: 58px minmax(0, 1fr) 40px; gap: 16px; align-items: center; text-align: left; box-shadow: 0 14px 30px rgba(17,19,24,.18); margin-top: 12px; transition: scale .14s ease; }
 .feature:active { scale: .98; }
 .feature::before, .feature::after { content: ""; position: absolute; z-index: -1; border-radius: 18px; height: 24px; }
 .feature::before { inset: -10px 7% auto; background: #EEF0F3; }
 .feature::after { inset: -5px 3.5% auto; background: #D9DCE1; }
-.feature b { font-size: 15px; font-weight: 600; }
-.feature .go { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; }
-.feature .go svg { width: 14px; height: 14px; }
+.feature .grow { display: grid; gap: 3px; min-width: 0; }
+.feature .lbl { font-size: 12px; font-weight: 500; color: rgba(255,255,255,.6); }
+.feature b { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
+.feature .go { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+.feature .go svg { width: 16px; height: 16px; }
 .ring .track { fill: none; stroke: rgba(255,255,255,.16); stroke-width: 5; }
 .ring .done { fill: none; stroke: var(--blue); stroke-width: 5; stroke-linecap: round; }
 .ring text { fill: #FFFFFF; font-family: var(--f-mono); font-size: 11px; font-weight: 600; }

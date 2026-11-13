@@ -153,12 +153,12 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
   const f = fund?.fund
   const nextStep = next && (
     <>
-      <svg className="ring" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+      <svg className="ring" width="58" height="58" viewBox="0 0 46 46" aria-hidden="true">
         <circle cx="23" cy="23" r="19" className="track" />
         <circle cx="23" cy="23" r="19" className="done" strokeDasharray={`${(119.4 * (checklist?.done ?? 0)) / (checklist?.total || 1)} 119.4`} transform="rotate(-90 23 23)" />
         <text x="23" y="27" textAnchor="middle">{checklist?.done}/{checklist?.total}</text>
       </svg>
-      <b>{stepWord[next.id] ?? next.id}</b>
+      <span className="grow"><span className="lbl">Next step</span><b>{stepWord[next.id] ?? next.id}</b></span>
       <span className="go" aria-hidden="true"><ChevronIcon /></span>
     </>
   )

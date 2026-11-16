@@ -29,6 +29,12 @@ IBM Plex Mono, under the SIL Open Font License (`public/fonts/PlexMono-OFL.txt`)
 The first time: `fly apps create zome-web`, then
 `fly certs add app.myzome.app -a zome-web` and the DNS records it prints.
 
+Set `ZOME_WEB_PROXY_KEY` to the same value on `zome-web` and `myzome-api`
+(`openssl rand -hex 32`, kept in the password manager). It lets this app's
+server tell the API which visitor a request is for; without it every web
+visitor shares one sign-in limit and sees "Too many attempts" (ADR-0058).
+Deploy the API first: the sign-in page needs its `/v1/auth/nonce` (ADR-0057).
+
 ## Continue with Google
 
 Off until `ZOME_GOOGLE_WEB_CLIENT_ID` is set (read at request time, so no

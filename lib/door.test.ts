@@ -109,3 +109,10 @@ test('a fund finds confirmed hospitals by name, and pays one with a key', () => 
   assert.equal(isAllowed('POST', `me/care-fund/${f}/pay-hospital/${f}`), true)
   assert.deepEqual(passedHeaders(`me/care-fund/${f}/pay-hospital/${f}`, new Headers({ 'Idempotency-Key': 'web-9' })), { 'Idempotency-Key': 'web-9' })
 })
+
+test('a Google nonce comes from the API, before signing in (ADR-0057)', () => {
+  assert.equal(isAllowed('POST', 'auth/nonce'), true)
+  assert.equal(isAllowed('GET', 'auth/nonce'), false)
+  assert.equal(sessionless('auth/nonce'), true, 'nobody is signed in yet')
+  assert.equal(signsIn('auth/nonce'), false, 'it answers with a nonce, not a session')
+})

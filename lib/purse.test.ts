@@ -39,3 +39,26 @@ test('spending this month runs day by day, payments only', () => {
   ], now)
   assert.deepEqual(line, [0, 50000, 50000, 70000, 70000])
 })
+
+test('the spend card covers the last 30 days, from the API when it can', async () => {
+  const { spentLine, spentByDayFrom, SPENT_DAYS } = await import('./purse.ts')
+  const byDay = new Array(SPENT_DAYS).fill(0)
+  byDay[0] = 500; byDay[29] = 1500
+  const line = spentLine(byDay, [])
+  assert.equal(line.length, 30)
+  assert.equal(line[29], 2000, 'the last point is the 30-day total')
+  assert.equal(line[0], 500)
+
+  // An older API: worked out from the movements the screen holds.
+  const now = new Date('2026-11-16T09:00:00+01:00')
+  const moves = [
+    { kind: 'payment', amount_kobo: -3000, at: '2026-11-16T08:00:00+01:00' },
+    { kind: 'payment', amount_kobo: -1000, at: '2026-10-18T10:00:00+01:00' },
+    { kind: 'payment', amount_kobo: -9999, at: '2026-10-16T10:00:00+01:00' },
+    { kind: 'top_up', amount_kobo: 50000, at: '2026-11-10T10:00:00+01:00' },
+  ]
+  const days = spentByDayFrom(moves, now)
+  assert.equal(days[29], 3000)
+  assert.equal(days[0], 1000, '29 days back is the first day')
+  assert.equal(spentLine(undefined, moves, now)[29], 4000, 'older than 30 days is left out')
+})

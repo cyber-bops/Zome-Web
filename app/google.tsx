@@ -7,6 +7,10 @@
 // any server); the page checks both, then hands the token to
 // /v1/auth/provider exactly as the apps do. The server checks its signature,
 // issuer and audience (ZOME_GOOGLE_AUDIENCES must list this web client ID).
+// The nonce comes from the API (ADR-0057), which accepts it once, within ten
+// minutes, so a copied ID token can't be replayed.
+
+import { call } from '@/lib/client'
 
 export type GoogleGrant = { idToken: string; email: string; givenName: string; familyName: string }
 type Pending = { state: string; nonce: string; from: string }
@@ -23,8 +27,9 @@ function claims(token: string): Record<string, unknown> {
 }
 
 /** Off to Google. `from` is the page to come back to on a cancel. */
-export function goToGoogle(clientId: string, from: string) {
-  const pending: Pending = { state: random(), nonce: random(), from }
+export async function goToGoogle(clientId: string, from: string) {
+  const { nonce } = await call<{ nonce: string }>('auth/nonce', 'POST', {})
+  const pending: Pending = { state: random(), nonce, from }
   try { sessionStorage.setItem(KEY, JSON.stringify(pending)) } catch { /* the return check then fails safely */ }
   const q = new URLSearchParams({
     client_id: clientId, redirect_uri: googleReturn(), response_type: 'id_token',
@@ -51,9 +56,9 @@ export function backFromGoogle(): { grant?: GoogleGrant; problem?: string; from?
   return { from: pending.from, grant: { idToken, email: String(c.email ?? ''), givenName: String(c.given_name ?? ''), familyName: String(c.family_name ?? '') } }
 }
 
-export function GoogleButton({ clientId, from, disabled }: { clientId: string; from: string; disabled?: boolean }) {
+export function GoogleButton({ onGo, disabled }: { onGo: () => void; disabled?: boolean }) {
   return (
-    <button type="button" className="btn lg wide outline g-btn" disabled={disabled} onClick={() => goToGoogle(clientId, from)}>
+    <button type="button" className="btn lg wide outline g-btn" disabled={disabled} onClick={onGo}>
       <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true">
         <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
         <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { deviceName } from '@/lib/device'
 import { forget, recall, remember, type Remembered } from '@/lib/remembered'
-import { backFromGoogle, GoogleButton, type GoogleGrant } from './google'
+import { backFromGoogle, GoogleButton, goToGoogle, type GoogleGrant } from './google'
 import { ZomeMark } from './mark'
 
 // Signing in and creating an account, as the iOS app does them (SignInModel,
@@ -179,7 +179,7 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
   const digits = code.slice(0, CODE)
   const stepsOf = mode === 'create' && !viaGoogle ? 3 : 2
   const at = step === 'choose' ? 1 : step === 'code' ? 2 : viaGoogle ? 2 : 3
-  const google = googleClientId && <GoogleButton clientId={googleClientId} from={mode === 'create' ? '/sign-up' : '/sign-in'} disabled={busy} />
+  const google = googleClientId && <GoogleButton onGo={() => run(() => goToGoogle(googleClientId, mode === 'create' ? '/sign-up' : '/sign-in'))} disabled={busy} />
 
   const secret = (id: string, label: string, value: string, set: (v: string) => void, autoComplete: string, hint?: string) => (
     <div className="field-row">

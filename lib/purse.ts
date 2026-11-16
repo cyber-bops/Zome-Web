@@ -51,3 +51,32 @@ export function spentThisMonth(movements: Moved[], now = new Date()): number[] {
   let run = 0
   return per.map(v => (run += v))
 }
+
+/** How many days "Spent in the last 30 days" covers, today included. */
+export const SPENT_DAYS = 30
+
+/**
+ * The spending chart's line: a running total over the last 30 days, oldest
+ * first, from the API's day-by-day figures (the whole ledger). An older API
+ * without them falls back to the movements the screen holds.
+ */
+export function spentLine(byDay: number[] | undefined, movements: Moved[], now = new Date()): number[] {
+  const days = byDay && byDay.length === SPENT_DAYS ? byDay : spentByDayFrom(movements, now)
+  let run = 0
+  return days.map(v => (run += Math.max(0, v)))
+}
+
+const dayKey = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: zone }).format(d)
+
+/** The last 30 days' spending from a list of movements, oldest first. */
+export function spentByDayFrom(movements: Moved[], now = new Date()): number[] {
+  const keys: string[] = []
+  for (let i = SPENT_DAYS - 1; i >= 0; i--) keys.push(dayKey(new Date(now.getTime() - i * 864e5)))
+  const at = new Map(keys.map((k, i) => [k, i]))
+  const out = new Array(SPENT_DAYS).fill(0)
+  for (const x of movements) {
+    const i = at.get(dayKey(new Date(x.at)))
+    if (i !== undefined && x.amount_kobo < 0) out[i] -= x.amount_kobo
+  }
+  return out
+}

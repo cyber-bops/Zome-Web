@@ -3,7 +3,7 @@
 
 const id = '[0-9a-f-]{36}'
 const allowed: Array<[string, RegExp]> = [
-  ['POST', /^auth\/(start|verify|provider|sign-in|sign-out|sign-out-all|password)$/],
+  ['POST', /^auth\/(start|verify|provider|nonce|sign-in|sign-out|sign-out-all|password)$/],
   // Still there (ADR-0056): asking keeps an idle-limited web session going.
   ['GET', /^auth\/session$/],
   ['GET', /^me\/profile$/],
@@ -69,7 +69,7 @@ export function isAllowed(method: string, path: string): boolean {
 export const signsIn = (path: string) => path === 'auth/verify' || path === 'auth/sign-in' || path === 'auth/provider'
 
 /** Routes that need no session at all. */
-export const sessionless = (path: string) => path === 'auth/start' || path.startsWith('give/') || path.startsWith('fund/') || signsIn(path)
+export const sessionless = (path: string) => path === 'auth/start' || path === 'auth/nonce' || path.startsWith('give/') || path.startsWith('fund/') || signsIn(path)
 
 /** Anything that moves money carries an Idempotency-Key, so a retry never pays twice. */
 const keyed = (path: string) => path === 'vault/top-ups' || path.startsWith('give/') || /^fund\/[a-z0-9-]+$/.test(path) || /^me\/care-fund\/[0-9a-f-]+\/pay(-hospital)?\//.test(path) || path === 'vault/transfers' || path === 'vault/debits' || new RegExp(`^vault/merchants/${id}/pay$`).test(path)

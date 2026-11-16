@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { call, Refused } from '@/lib/client'
 import { naira } from '@/lib/money'
-import { monthTotals, spentThisMonth } from '@/lib/purse'
+import { monthTotals, spentLine } from '@/lib/purse'
 import { stepWord } from '@/lib/words'
 import type { Checklist, MyCareFund, Purse } from '@/server/api'
 import { ChevronIcon, EyeIcon, HeartIcon, PayIcon, PlusIcon, QrIcon, ReceiptIcon } from '../icons'
@@ -145,7 +145,8 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
   const rate = purse.interest_rate_bps > 0 ? (purse.interest_rate_bps / 100).toLocaleString('en-NG', { maximumFractionDigits: 2 }) : null
   const next = checklist?.steps.find(s => s.state === 'to_do')
   const waiting = purse.top_ups.find(t => t.state === 'awaiting_payment' && Date.parse(t.expires_at) > Date.now())
-  const spent = spentThisMonth(purse.movements)
+  // Spent in the last 30 days, from the API's day-by-day figures.
+  const spent = spentLine(purse.spent_by_day_kobo, purse.movements)
   const gifts = purse.movements.filter(m => m.kind === 'gift')
   const given = gifts.reduce((t, m) => t + m.amount_kobo, 0)
   const hour = Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hour12: false, timeZone: zone }).format(new Date()))
@@ -187,8 +188,8 @@ export function PurseView({ purse, name, first, openFund, checklist, fund }: { p
           <Link href="/receipts" className="tile wide">
             <span className="txt">
               <span className="ic b"><ReceiptIcon /></span>
-              <span className="t">Spent</span>
-              <span className="num">{naira(month.out, true)}</span>
+              <span className="t">Spent in the last 30 days</span>
+              <span className="num">{naira(spent[spent.length - 1] ?? 0, true)}</span>
             </span>
             <Spark line={spent} />
           </Link>

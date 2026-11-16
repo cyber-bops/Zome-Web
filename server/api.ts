@@ -7,6 +7,9 @@ import { cookies, headers } from 'next/headers'
 import { SESSION_COOKIE } from '@/lib/session'
 
 const API = process.env.ZOME_API_URL ?? 'http://localhost:8080'
+// Proves to the API that a visitor's address comes from this app's server
+// (ADR-0058). Never sent to a browser.
+const PROXY_KEY = process.env.ZOME_WEB_PROXY_KEY ?? ''
 
 export class APIError extends Error {
   constructor(public status: number, public type: string, message: string, public until?: string) {
@@ -50,6 +53,7 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
         ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(address ? { 'X-Forwarded-For': address } : {}),
+        ...(address && PROXY_KEY ? { 'X-Zome-Client-IP': address, 'X-Zome-Proxy-Key': PROXY_KEY } : {}),
         ...init.headers,
       },
       body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
@@ -116,6 +120,8 @@ export type Purse = {
   movements: Movement[]
   top_ups: TopUp[]
   interest_rate_bps: number
+  /** Spent on each of the last 30 days (Lagos), oldest first; absent from an older API. */
+  spent_by_day_kobo?: number[]
   linked_account?: Mandate
   schedule?: { id: string; amount_kobo: number; cadence: 'daily' | 'weekly' | 'monthly'; starts_on: string; next_on?: string }
   debits?: { id: string; state: string; amount_kobo: number; fee_kobo: number; total_kobo: number; scheduled: boolean; created_at: string }[]

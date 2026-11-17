@@ -8,6 +8,9 @@ const allowed: Array<[string, RegExp]> = [
   ['GET', /^auth\/session$/],
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
+  // Tips and reminders by email (ADR-0059).
+  ['GET', /^me\/mail-preferences$/],
+  ['PUT', /^me\/mail-preferences$/],
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
   // The family link: the person's own, and the giving page anyone may open (ADR-0053 §6).
   ['GET', /^me\/gift-link$/],
@@ -39,6 +42,8 @@ const allowed: Array<[string, RegExp]> = [
   // Paying for care: the PIN, the network's businesses, bills sent to a pay code.
   ['GET', /^vault\/pin$/],
   ['POST', /^vault\/pin$/],
+  // Changing or resetting the PIN from You (the reset code comes by email).
+  ['POST', /^vault\/pin\/(change|reset|reset\/start)$/],
   ['GET', /^vault\/merchants$/],
   ['POST', new RegExp(`^vault/merchants/${id}/pay$`)],
   ['GET', /^vault\/bills$/],

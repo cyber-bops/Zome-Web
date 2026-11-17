@@ -93,6 +93,26 @@ export async function me(): Promise<Profile | null> {
   }
 }
 
+/** Whether a Care Purse PIN is set; null when Care Purse isn't open to this person. */
+export async function pinState(): Promise<{ set: boolean; locked_until?: string } | null> {
+  try {
+    return await api<{ set: boolean; locked_until?: string }>('/v1/vault/pin')
+  } catch (e) {
+    if (e instanceof APIError && (e.status === 404 || e.status === 501)) return null
+    throw e
+  }
+}
+
+/** Whether tips and reminders come by email; null when the API doesn't offer the choice. */
+export async function mailPreferences(): Promise<{ tips: boolean } | null> {
+  try {
+    return await api<{ tips: boolean }>('/v1/me/mail-preferences')
+  } catch (e) {
+    if (e instanceof APIError && (e.status === 404 || e.status === 501)) return null
+    throw e
+  }
+}
+
 export type Movement = { kind: 'top_up' | 'reversal' | 'interest' | 'cashback' | 'payment' | 'team' | 'other' | string; amount_kobo: number; at: string; from?: string }
 export type TopUp = {
   id: string

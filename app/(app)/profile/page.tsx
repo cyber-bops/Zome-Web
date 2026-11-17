@@ -1,13 +1,14 @@
-import { checklist, me, purse } from '@/server/api'
+import { checklist, mailPreferences, me, pinState, purse } from '@/server/api'
 import { BankCard } from '../link'
 import { AccountActions } from './controls'
+import { Security } from './security'
 import { Steps } from './steps'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'You · Zome' }
 
 export default async function ProfilePage() {
-  const [who, list, p] = await Promise.all([me(), checklist(), purse()])
+  const [who, list, p, pin, prefs] = await Promise.all([me(), checklist(), purse(), pinState(), mailPreferences()])
   const name = who?.full_name?.trim() || who?.nickname?.trim() || ''
   const initials = (name || who?.email || 'Z').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
   return (
@@ -21,6 +22,7 @@ export default async function ProfilePage() {
           <div className="row"><span className="mut">Signing in</span></div>
           <AccountActions />
         </section>
+        <Security pin={pin} tips={prefs?.tips ?? null} />
       </div>
       <div>
         {list && <Steps list={list} />}

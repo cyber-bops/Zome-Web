@@ -8,9 +8,6 @@ const allowed: Array<[string, RegExp]> = [
   ['GET', /^auth\/session$/],
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
-  // Tips and reminders by email (ADR-0059).
-  ['GET', /^me\/mail-preferences$/],
-  ['PUT', /^me\/mail-preferences$/],
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
   // The family link: the person's own, and the giving page anyone may open (ADR-0053 §6).
   ['GET', /^me\/gift-link$/],

@@ -6,15 +6,15 @@ import { call, Refused } from '@/lib/client'
 import { PinSheet } from '../pin'
 import { Sheet } from '../sheet'
 
-// Security and email settings in You: the password, the Care Purse PIN
-// (change it, set it, or reset a forgotten one with a code sent by email), and
-// whether tips and reminders come by email. Each change is also mailed to the
+// Security settings in You: the password and the Care Purse PIN (change it,
+// set it, or reset a forgotten one with a code sent by email). Each change is
+// also mailed to the
 // person by Zome Security (ADR-0059), so a change they didn't make doesn't go
 // unnoticed.
 
 const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 
-export function Security({ pin, tips }: { pin: { set: boolean } | null; tips: boolean | null }) {
+export function Security({ pin }: { pin: { set: boolean } | null }) {
   const [open, setOpen] = useState<null | 'password' | 'pin-change' | 'pin-set' | 'pin-forgot'>(null)
   const [toast, setToast] = useState<string | null>(null)
   const done = (t: string) => { setOpen(null); setToast(t); setTimeout(() => setToast(null), 3200) }
@@ -48,36 +48,12 @@ export function Security({ pin, tips }: { pin: { set: boolean } | null; tips: bo
         </section>
       )}
 
-      {tips !== null && <EmailPrefs on={tips} onDone={t => { setToast(t); setTimeout(() => setToast(null), 3200) }} />}
-
       {open === 'password' && <PasswordSheet onClose={close} onDone={done} />}
       {open === 'pin-change' && <PinChange onClose={close} onDone={done} />}
       {open === 'pin-set' && <PinSet onClose={close} onDone={done} />}
       {open === 'pin-forgot' && <PinForgot onClose={close} onDone={done} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </>
-  )
-}
-
-function EmailPrefs({ on, onDone }: { on: boolean; onDone: (t: string) => void }) {
-  const [value, setValue] = useState(on)
-  const [busy, setBusy] = useState(false)
-  const [problem, setProblem] = useState<string | null>(null)
-  const flip = async () => {
-    const next = !value
-    setBusy(true); setProblem(null); setValue(next)
-    try { await call('me/mail-preferences', 'PUT', { tips: next }); onDone(next ? 'Tips and reminders are on' : 'Tips and reminders are off') }
-    catch (e) { setValue(!next); setProblem(words(e)) } finally { setBusy(false) }
-  }
-  return (
-    <section className="sheet-paper">
-      <h2>Emails</h2>
-      <div className="row">
-        <span className="grow"><span id="tips-label">Tips and reminders</span><span className="small sub">Help getting started, and the odd nudge. Emails about your account’s security, codes and payments always come.</span></span>
-        <button type="button" role="switch" aria-checked={value} aria-labelledby="tips-label" className={`switch-btn${value ? ' on' : ''}`} disabled={busy} onClick={flip}><i /></button>
-      </div>
-      {problem && <p className="err" role="alert">{problem}</p>}
-    </section>
   )
 }
 

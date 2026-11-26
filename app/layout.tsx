@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#E9E5DD' }
+export const viewport: Viewport = { width: 'device-width', initialScale: 1, viewportFit: 'cover', themeColor: '#F2F0E9' }
 
 // One look, paper on a desk (globals.css). The filter gives the stamps their ink.
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -835,3 +835,38 @@ body { background: #FFFFFF; }
 .row > .grow { display: grid; gap: 2px; min-width: 0; flex: 1 1 220px; }
 .row .sub { margin-top: 0; }
 
+
+/* ===================================================================
+   Zome's colours (November 2026): cream, cocoa and pink, as the website
+   and the merchant dashboard. Cocoa takes the old blue's place for
+   accents; pink fills the main button, with cocoa type on it.
+   =================================================================== */
+:root {
+  --desk: #FFFFFF;
+  --paper: #FFFFFF;
+  --key: #F2F0E9;     /* tiles: cream on the white screen */
+  --tile: #F2F0E9;
+  --ink: #4E3533;
+  --ink-2: #6B5654;   /* 6.8:1 on white */
+  --ink-3: #7A6563;   /* 5.4:1 on white */
+  --rule: #ECE6DC;
+  --blue: #4E3533;
+  --pink: #FF95E8;
+  --pink-deep: #F57FDB;
+}
+body { background: #FFFFFF; }
+.btn:not(.soft):not(.danger):not(.outline) { background: var(--pink); color: var(--ink); }
+.btn:not(.soft):not(.danger):not(.outline):hover { background: var(--pink-deep); }
+::selection { background: rgba(255, 149, 232, .45); }
+/* No solid dark blocks: the main key is pink, the next-step card the brand's
+   white-to-pink (ZOME_IV), both with cocoa type. */
+.key.pri { background: var(--pink); color: var(--ink); box-shadow: 0 10px 24px -12px rgba(255,149,232,.9); }
+.key.pri .ic { background: var(--ink); color: #fff; }
+.key.pri kbd { color: rgba(78,53,51,.6); border-color: rgba(78,53,51,.25); }
+.feature { color: var(--ink); background: radial-gradient(90% 120% at 0% 0%, rgba(255,255,255,.9) 0%, rgba(255,255,255,0) 55%), radial-gradient(70% 90% at 100% 100%, rgba(255,120,224,.55) 0%, rgba(255,120,224,0) 60%), linear-gradient(135deg, #FFF3FB 0%, #FFD9F5 45%, #FFB8EF 100%); box-shadow: 0 0 0 1px rgba(78,53,51,.06), 0 14px 30px -14px rgba(255,149,232,.7); }
+.feature::before { background: #FFE9F9; } .feature::after { background: #FFD6F5; }
+.feature .lbl { color: var(--ink-2); }
+.feature .go { background: rgba(78,53,51,.1); }
+.feature .ring .track { stroke: rgba(78,53,51,.15); }
+.feature .ring text { fill: var(--ink); }
+.pill.dark { background: var(--pink); color: var(--ink); } .pill.dark svg { color: var(--ink); }

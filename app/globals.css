@@ -847,8 +847,8 @@ body { background: #FFFFFF; }
   --key: #F2F0E9;     /* tiles: cream on the white screen */
   --tile: #F2F0E9;
   --ink: #4E3533;
-  --ink-2: #6B5654;   /* 6.8:1 on white */
-  --ink-3: #7A6563;   /* 5.4:1 on white */
+  --ink-2: #76615F;   /* 5.8:1 on white */
+  --ink-3: #846F6D;   /* 4.7:1 on white */
   --rule: #ECE6DC;
   --blue: #4E3533;
   --pink: #FF95E8;

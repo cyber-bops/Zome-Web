@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { me } from '@/server/api'
-import { ZomeMark } from '../mark'
+import { ZomeMark, ZomeWordmark } from '../mark'
 import { IdleGuard } from './idle'
 import { Tabs, TopLinks } from './nav'
 
@@ -15,7 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <>
       <header className="top">
-        <Link href="/" className="wm"><ZomeMark />Zome</Link>
+        <Link href="/" className="wm"><ZomeMark /><ZomeWordmark /></Link>
         <TopLinks />
         <Link href="/profile" className="me"><span className="name">{name}</span><span className="avatar">{initials}</span></Link>
       </header>

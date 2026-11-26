@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ZomeMark } from './mark'
+import { ZomeMark, ZomeWordmark } from './mark'
 
 // A legal document from the zome repo (tools/sync-terms.mjs), drawn with the
 // few kinds of block those documents use.
@@ -58,7 +58,7 @@ function blocks(md: string): React.ReactNode[] {
 export function LegalDoc({ text }: { text: string }) {
   return (
     <main className="legal">
-      <Link href="/" className="wm"><ZomeMark />Zome</Link>
+      <Link href="/" className="wm"><ZomeMark /><ZomeWordmark /></Link>
       <article>{blocks(text)}</article>
     </main>
   )

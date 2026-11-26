@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ZomeMark } from '../mark'
+import { ZomeMark, ZomeWordmark } from '../mark'
 
 // The ticket that drops in on a string when money moves: paid, added. A
 // punched hole, a dark panel, the receipt's fields, an
@@ -38,7 +38,7 @@ export function HangingTicket({ eyebrow, headline, stamp, green, fields, referen
       <div className="string" aria-hidden="true" />
       <div className="ticket-hang" aria-hidden={print ? undefined : true}>
         <div className="tk tk-1">
-          <div className="tk-brand"><b>Zome</b><ZomeMark /></div>
+          <div className="tk-brand"><ZomeWordmark /><ZomeMark /></div>
           <span className="pillmono">{eyebrow}</span>
           <div className="tk-art"><b className={print ? 'code-print' : undefined}>{printed}</b><i className="s1" /><i className="s2" /><i className="s3" /></div>
         </div>

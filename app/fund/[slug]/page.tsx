@@ -1,7 +1,7 @@
 import { api, APIError, type FundPayment, type FundUpdate } from '@/server/api'
 import { naira } from '@/lib/money'
 import { GiveForm } from '../../give/[slug]/form'
-import { ZomeMark } from '../../mark'
+import { ZomeMark, ZomeWordmark } from '../../mark'
 import { Report } from './report'
 
 export const dynamic = 'force-dynamic'
@@ -31,7 +31,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
   }
   if (!p) return (
     <main className="give">
-      <a className="wm give-wm" href="https://myzome.app"><ZomeMark />Zome</a>
+      <a className="wm give-wm" href="https://myzome.app"><ZomeMark /><ZomeWordmark /></a>
       <div className="tape"><div className="paper">
         <div className="ph"><ZomeMark /><b>THIS FUND ISN’T OPEN</b><span>CHECK THE LINK</span></div>
         <div className="dash" />
@@ -44,7 +44,7 @@ export default async function Fund({ params }: { params: Promise<{ slug: string 
   const left = Math.ceil((Date.parse(p.ends_at) - Date.now()) / 86_400_000)
   return (
     <main className="give fund-page">
-      <a className="wm give-wm" href="https://myzome.app"><ZomeMark />Zome</a>
+      <a className="wm give-wm" href="https://myzome.app"><ZomeMark /><ZomeWordmark /></a>
       <div className="fund-cols">
         <article className="fund-story">
           <p className="lbl">Care Fund</p>

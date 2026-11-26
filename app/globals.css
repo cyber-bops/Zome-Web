@@ -870,3 +870,9 @@ body { background: #FFFFFF; }
 .feature .ring .track { stroke: rgba(78,53,51,.15); }
 .feature .ring text { fill: var(--ink); }
 .pill.dark { background: var(--pink); color: var(--ink); } .pill.dark svg { color: var(--ink); }
+/* The wordmark is drawn (ZOME_II), not typed. */
+svg.zw { display: block; width: auto !important; height: 13px !important; color: var(--ink) !important; flex: none; }
+.legal .wm svg.zw, .give-wm svg.zw { height: 13px !important; }
+.tk .tk-brand svg.zw { height: 12px !important; }
+.status-head svg.zw { height: 13px !important; }
+.spark .area { fill: rgba(255,149,232,.28); }

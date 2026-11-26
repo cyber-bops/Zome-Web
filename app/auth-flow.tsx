@@ -7,7 +7,7 @@ import { call, Refused } from '@/lib/client'
 import { deviceName } from '@/lib/device'
 import { forget, recall, remember, type Remembered } from '@/lib/remembered'
 import { backFromGoogle, GoogleButton, goToGoogle, type GoogleGrant } from './google'
-import { ZomeMark } from './mark'
+import { ZomeMark, ZomeWordmark } from './mark'
 
 // Signing in and creating an account, as the iOS app does them (SignInModel,
 // SignUpSheet): an email code to create an account and then a password; the
@@ -211,7 +211,7 @@ export function AuthFlow({ mode, googleClientId }: { mode: Mode; googleClientId?
       </aside>
       <section className="auth-main">
         <div className="auth-form">
-          <div className="brand"><span className="badge"><ZomeMark /></span>Zome</div>
+          <div className="brand"><span className="badge"><ZomeMark /></span><ZomeWordmark /></div>
           {(mode === 'create' || step !== 'choose') && (
             <>
               <p className="steps-lbl">Step {at} of {stepsOf}</p>

@@ -1,5 +1,5 @@
 import { api, APIError } from '@/server/api'
-import { ZomeMark } from '../../mark'
+import { ZomeMark, ZomeWordmark } from '../../mark'
 import { GiveForm, type GivingPage } from './form'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +17,7 @@ export default async function Give({ params }: { params: Promise<{ slug: string 
   }
   return (
     <main className="give">
-      <a className="wm give-wm" href="https://myzome.app"><ZomeMark />Zome</a>
+      <a className="wm give-wm" href="https://myzome.app"><ZomeMark /><ZomeWordmark /></a>
       {page ? <GiveForm slug={slug.toLowerCase()} page={page} /> : (
         <div className="tape"><div className="paper">
           <div className="ph"><ZomeMark /><b>THIS LINK ISN’T OPEN</b><span>ASK FOR A NEW ONE</span></div>

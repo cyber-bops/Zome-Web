@@ -1,4 +1,4 @@
-import { ZomeMark } from './mark'
+import { ZomeMark, ZomeWordmark } from './mark'
 
 // One calm page for everything that isn't the page asked for: not found,
 // taking too long, something broke. Usable from server and client alike.
@@ -15,7 +15,7 @@ export function StatusPage({ code, title, children, actions, reference, tone = '
       <div className="status-card">
         <div className="status-head">
           <span className="badge"><ZomeMark /></span>
-          <span>Zome</span>
+          <ZomeWordmark />
         </div>
         <p className="status-code" aria-hidden="true">{code}</p>
         <h1 className="status-title">{title}</h1>

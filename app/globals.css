@@ -858,13 +858,13 @@ body { background: #FFFFFF; }
 .btn:not(.soft):not(.danger):not(.outline) { background: var(--pink); color: var(--ink); }
 .btn:not(.soft):not(.danger):not(.outline):hover { background: var(--pink-deep); }
 ::selection { background: rgba(255, 149, 232, .45); }
-/* No solid dark blocks: the main key is pink; the next-step card white with a
-   pink edge; both with cocoa type. */
+/* No solid dark blocks: the main key is pink, the next-step card a soft blush,
+   both with cocoa type. */
 .key.pri { background: var(--pink); color: var(--ink); box-shadow: 0 10px 24px -12px rgba(255,149,232,.9); }
 .key.pri .ic { background: var(--ink); color: #fff; }
 .key.pri kbd { color: rgba(78,53,51,.6); border-color: rgba(78,53,51,.25); }
-.feature { color: var(--ink); background: #FFFFFF; box-shadow: 0 0 0 1px var(--rule), 0 10px 24px -18px rgba(78,53,51,.35); }
-.feature::before { background: #F2F0E9; } .feature::after { background: #ECE6DC; }
+.feature { color: var(--ink); background: #FFE6F8; box-shadow: none; }
+.feature::before { background: #FFF3FB; } .feature::after { background: #FFECF9; }
 .feature .lbl { color: var(--ink-2); }
 .feature .go { background: rgba(78,53,51,.1); }
 .feature .ring .track { stroke: rgba(78,53,51,.15); }

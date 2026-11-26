@@ -863,7 +863,7 @@ body { background: #FFFFFF; }
 .key.pri { background: var(--pink); color: var(--ink); box-shadow: 0 10px 24px -12px rgba(255,149,232,.9); }
 .key.pri .ic { background: var(--ink); color: #fff; }
 .key.pri kbd { color: rgba(78,53,51,.6); border-color: rgba(78,53,51,.25); }
-.feature { color: var(--ink); background: #FFFFFF; border-left: 6px solid var(--pink); box-shadow: 0 0 0 1px var(--rule), 0 10px 24px -18px rgba(78,53,51,.35); }
+.feature { color: var(--ink); background: #FFFFFF; box-shadow: 0 0 0 1px var(--rule), 0 10px 24px -18px rgba(78,53,51,.35); }
 .feature::before { background: #F2F0E9; } .feature::after { background: #ECE6DC; }
 .feature .lbl { color: var(--ink-2); }
 .feature .go { background: rgba(78,53,51,.1); }

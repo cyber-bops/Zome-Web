@@ -24,7 +24,7 @@ export function proxy(request: NextRequest) {
     // Profile photos come as signed links to the private bucket, and logos
     // from the public one, both on Tigris (ADR-0063); ZOME_PICTURE_ORIGINS
     // names another host (a custom domain, a local stand-in).
-    `img-src 'self' blob: data: https://fly.storage.tigris.dev https://*.fly.storage.tigris.dev ${pictureOrigins()}`.trimEnd(),
+    `img-src 'self' blob: data: https://fly.storage.tigris.dev https://*.fly.storage.tigris.dev https://t3.storage.dev https://*.t3.storage.dev https://*.t3.tigrisfiles.io https://*.t3.tigrisbucket.io ${pictureOrigins()}`.trimEnd(),
     `font-src 'self'`,
     `connect-src 'self'`,
     `object-src 'none'`,

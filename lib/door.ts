@@ -8,6 +8,9 @@ const allowed: Array<[string, RegExp]> = [
   ['GET', /^auth\/session$/],
   ['GET', /^me\/profile$/],
   ['PUT', /^me\/profile$/],
+  // The profile photo (ADR-0063).
+  ['PUT', /^me\/photo$/],
+  ['DELETE', /^me\/photo$/],
   // Identity: the BVN, with a code to the phone on its record (ADR-0052 §16).
   // The family link: the person's own, and the giving page anyone may open (ADR-0053 §6).
   ['GET', /^me\/gift-link$/],
@@ -91,5 +94,6 @@ export function passedQuery(path: string, given: URLSearchParams): string {
 
 /** How much a request may carry: a selfie is a photo, everything else is small. */
 export function bodyLimit(path: string): number {
+  if (path === 'me/photo') return 1_500_000 // a photo, at most 1 MB as base64
   return path === 'me/selfie' ? 5 * 1024 * 1024 : 16_384
 }

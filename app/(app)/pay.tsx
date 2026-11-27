@@ -14,7 +14,7 @@ import { HangingTicket } from './ticket'
 // provider, the amount, the PIN; then the receipt, stamped. A person with no
 // PIN yet chooses one first, as the app has them do.
 
-export type Merchant = { id: string; name: string; category: string; address: string; hospital?: boolean; bank?: string; fee?: number }
+export type Merchant = { id: string; name: string; category: string; address: string; hospital?: boolean; bank?: string; fee?: number; logo_url?: string }
 type Paid = { bill: { receipt: string; merchant: string; amount_kobo: number; created_at: string }; cashback_kobo: number; fee_kobo?: number; sending?: boolean }
 const words = (e: unknown) => e instanceof Refused ? e.message : 'That didn’t work this time. Please try again.'
 const initials = (n: string) => n.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase()
@@ -130,7 +130,7 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
           <input id="pay-note" className="ps-for" maxLength={80} value={note} onChange={e => setNote(e.target.value)} placeholder="What it’s for (optional)" aria-label="What it’s for" />
         </div>
         <button type="button" className="way-bar" onClick={() => { setProblem(null); setStep('find') }}>
-          <span className="bank-logo" aria-hidden="true">{initials(to.name)}</span>
+          <span className={to.logo_url ? 'bank-logo has-logo' : 'bank-logo'} aria-hidden="true">{/* eslint-disable-next-line @next/next/no-img-element */}{to.logo_url ? <img src={to.logo_url} alt="" referrerPolicy="no-referrer" /> : initials(to.name)}</span>
           <span className="grow"><b>{to.name}</b><span>{to.hospital ? `Confirmed by Zome · ${to.bank}` : [to.category, to.address].filter(Boolean).join(' · ')}</span></span>
           <span className="change">Change</span>
         </button>
@@ -150,7 +150,7 @@ export function PaySheet({ balance, onClose, onPaid, fund }: { balance: number; 
           : list.length === 0 ? <p className="none">We can’t find them on Zome yet. Check the spelling, or try another name.</p>
           : list.map(m => (
             <button key={m.id} type="button" onClick={() => { setTo(m); setStep('amount') }}>
-              <span className="pin">{initials(m.name)}</span>
+              <span className={m.logo_url ? 'pin has-logo' : 'pin'}>{/* eslint-disable-next-line @next/next/no-img-element */}{m.logo_url ? <img src={m.logo_url} alt="" referrerPolicy="no-referrer" /> : initials(m.name)}</span>
               <span className="grow"><b>{m.name}</b><span>{m.hospital ? 'Confirmed by Zome · ' : ''}{[m.category, m.address].filter(Boolean).join(' · ')}</span></span>
             </button>
           ))}

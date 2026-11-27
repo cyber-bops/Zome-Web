@@ -3,6 +3,7 @@ import { BankCard } from '../link'
 import { AccountActions } from './controls'
 import { Security } from './security'
 import { Steps } from './steps'
+import { ProfilePhoto } from './photo'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'You · Zome' }
@@ -18,7 +19,7 @@ export default async function ProfilePage() {
         <h1 className="page-h">{name || 'Your account'}</h1>
         <p className="page-s mono">{who?.email}</p>
         <section className="sheet-paper">
-          <div className="who"><span className="avatar">{initials}</span><div className="grow"><b>{name || 'Your account'}</b><span>{who?.email}</span></div></div>
+          <div className="who"><ProfilePhoto initials={initials} photoUrl={who?.photo_url} /><div className="grow"><b>{name || 'Your account'}</b><span>{who?.email}</span></div></div>
           <div className="row"><span className="mut">Signing in</span></div>
           <AccountActions />
         </section>

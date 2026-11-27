@@ -876,3 +876,19 @@ svg.zw { display: block; width: auto !important; height: 13px !important; color:
 .tk .tk-brand svg.zw { height: 12px !important; }
 .status-head svg.zw { height: 13px !important; }
 .spark .area { fill: rgba(255,149,232,.28); }
+/* Profile photo (ADR-0063). */
+.avatar.has-photo, .photo-btn { overflow: hidden; padding: 0; }
+.avatar img, .photo-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-edit { display: grid; justify-items: center; gap: 6px; }
+.photo-btn { position: relative; cursor: pointer; font: inherit; }
+.who .photo-btn { width: 64px; height: 64px; font-size: 17px; }
+.photo-cam { position: absolute; right: -2px; bottom: -2px; width: 24px; height: 24px; border-radius: 50%; background: var(--pink, #FF95E8); color: var(--ink); display: grid; place-items: center; box-shadow: 0 0 0 2px #fff; }
+.photo-cam svg { width: 13px; height: 13px; }
+.photo-links { display: flex; gap: 12px; font-size: 12.5px; }
+.photo-links button { background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+.photo-links .mut { color: var(--ink-3); }
+.pin.has-logo, .bank-logo.has-logo { background: #fff; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); overflow: hidden; padding: 3px; }
+.pin.has-logo img, .bank-logo.has-logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.photo-btn { overflow: visible; }
+.photo-btn img { border-radius: 50%; }
+.photo-cam { color: #4E3533; } .photo-cam svg { stroke: #4E3533; }

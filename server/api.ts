@@ -81,7 +81,8 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
 }
 
 // What the API returns to the web app.
-export type Profile = { nickname?: string; full_name?: string; email?: string }
+// photo_url is a signed link to the profile photo, good until photo_expires_at (ADR-0063).
+export type Profile = { nickname?: string; full_name?: string; email?: string; photo_url?: string; photo_expires_at?: string }
 
 /** The signed-in person's profile, or null when there is no live session. */
 export async function me(): Promise<Profile | null> {

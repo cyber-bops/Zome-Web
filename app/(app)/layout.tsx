@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="top">
         <Link href="/" className="wm"><ZomeMark /><ZomeWordmark /></Link>
         <TopLinks />
-        <Link href="/profile" className="me"><span className="name">{name}</span><span className="avatar">{initials}</span></Link>
+        <Link href="/profile" className="me"><span className="name">{name}</span><span className={who.photo_url ? 'avatar has-photo' : 'avatar'}>{/* eslint-disable-next-line @next/next/no-img-element */}{who.photo_url ? <img src={who.photo_url} alt="" referrerPolicy="no-referrer" /> : initials}</span></Link>
       </header>
       <main className="app">{children}</main>
       <Tabs />

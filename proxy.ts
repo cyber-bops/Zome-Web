@@ -4,6 +4,10 @@ import { SESSION_COOKIE } from './lib/session'
 // Every page gets a Content-Security-Policy with a fresh nonce: no inline
 // script without it, no script from anywhere else, no framing (ADR-0022 §5).
 // A visitor with no session is sent to sign in.
+function pictureOrigins(): string {
+  return (process.env.ZOME_PICTURE_ORIGINS ?? '').split(/\s+/).filter(o => /^https?:\/\/[a-z0-9.-]+(:\d+)?$/i.test(o)).join(' ')
+}
+
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const signedIn = request.cookies.has(SESSION_COOKIE)
@@ -17,7 +21,10 @@ export function proxy(request: NextRequest) {
     `default-src 'self'`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? ` 'unsafe-eval'` : ''}`,
     `style-src 'self' 'nonce-${nonce}'`,
-    `img-src 'self' blob: data:`,
+    // Profile photos come as signed links to the private bucket, and logos
+    // from the public one, both on Tigris (ADR-0063); ZOME_PICTURE_ORIGINS
+    // names another host (a custom domain, a local stand-in).
+    `img-src 'self' blob: data: https://fly.storage.tigris.dev https://*.fly.storage.tigris.dev ${pictureOrigins()}`.trimEnd(),
     `font-src 'self'`,
     `connect-src 'self'`,
     `object-src 'none'`,
